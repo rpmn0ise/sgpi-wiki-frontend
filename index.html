@@ -72,106 +72,15 @@
                 </div>
             </div>
 
-            <div class="home-categories">
+<div class="home-categories">
                 <h3>📂 Parcourir par catégorie</h3>
-                <div class="categories-grid">
-                    
-                    <a href="confidentialite-securite.html" class="category-card">
-                        <div class="icon">🔒</div>
-                        <h3>Confidentialité & Sécurité</h3>
-                        <p class="count">Navigateurs, VPN, extensions...</p>
-                    </a>
-
-                    <a href="intelligence-artificielle.html" class="category-card">
-                        <div class="icon">🤖</div>
-                        <h3>Intelligence Artificielle</h3>
-                        <p class="count">Chatbots, génération d'images...</p>
-                    </a>
-
-                    <a href="films-series-anime.html" class="category-card">
-                        <div class="icon">🎬</div>
-                        <h3>Films / Séries / Anime</h3>
-                        <p class="count">Streaming, téléchargement...</p>
-                    </a>
-
-                    <a href="musique-podcasts-radio.html" class="category-card">
-                        <div class="icon">🎵</div>
-                        <h3>Musique / Podcasts</h3>
-                        <p class="count">Streaming audio, MP3...</p>
-                    </a>
-
-                    <a href="jeux-video.html" class="category-card">
-                        <div class="icon">🎮</div>
-                        <h3>Jeux vidéo</h3>
-                        <p class="count">Téléchargement, émulateurs...</p>
-                    </a>
-
-                    <a href="livres-bd-mangas.html" class="category-card">
-                        <div class="icon">📖</div>
-                        <h3>Livres / BD / Mangas</h3>
-                        <p class="count">Bibliothèques, lecture en ligne...</p>
-                    </a>
-
-                    <a href="telechargement.html" class="category-card">
-                        <div class="icon">📥</div>
-                        <h3>Téléchargement</h3>
-                        <p class="count">Gestionnaires, DDL, hébergeurs...</p>
-                    </a>
-
-                    <a href="torrents.html" class="category-card">
-                        <div class="icon">🌊</div>
-                        <h3>Torrents</h3>
-                        <p class="count">Clients, trackers, indexeurs...</p>
-                    </a>
-
-                    <a href="education.html" class="category-card">
-                        <div class="icon">📚</div>
-                        <h3>Éducation</h3>
-                        <p class="count">Cours en ligne, tutoriels...</p>
-                    </a>
-
-                    <a href="mobile.html" class="category-card">
-                        <div class="icon">📱</div>
-                        <h3>Mobile</h3>
-                        <p class="count">Apps modifiées, stores alternatifs...</p>
-                    </a>
-
-                    <a href="systemes.html" class="category-card">
-                        <div class="icon">🐧</div>
-                        <h3>Systèmes</h3>
-                        <p class="count">Linux, Windows, macOS...</p>
-                    </a>
-
-                    <a href="logiciels-outils.html" class="category-card">
-                        <div class="icon">💻</div>
-                        <h3>Logiciels / Outils</h3>
-                        <p class="count">Productivité, design, montage...</p>
-                    </a>
-
-                    <a href="stockage-partage.html" class="category-card">
-                        <div class="icon">💾</div>
-                        <h3>Stockage & Partage</h3>
-                        <p class="count">Cloud, transfert de fichiers...</p>
-                    </a>
-
-                    <a href="web-internet.html" class="category-card">
-                        <div class="icon">🌐</div>
-                        <h3>Web / Internet</h3>
-                        <p class="count">Création de sites, hébergement...</p>
-                    </a>
-
-                    <a href="developpement.html" class="category-card">
-                        <div class="icon">👨‍💻</div>
-                        <h3>Développement</h3>
-                        <p class="count">Éditeurs, hosting, APIs...</p>
-                    </a>
-
-                    <a href="divers.html" class="category-card">
-                        <div class="icon">🎲</div>
-                        <h3>Divers</h3>
-                        <p class="count">Outils inclassables...</p>
-                    </a>
-
+                
+                <div id="categories-loading" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    Chargement des catégories...
+                </div>
+                
+                <div class="categories-grid" id="categories-grid" style="display: none;">
+                    <!-- Les catégories seront chargées ici dynamiquement -->
                 </div>
             </div>
 
@@ -187,6 +96,53 @@
         <p>© 2026 SGPI - Wiki à usage privé | Réservé aux membres Discord</p>
         <p>Dernière mise à jour : Février 2026</p>
     </footer>
+
+    <script src="script.js"></script>
+    
+    <!-- Script pour charger les catégories dynamiquement -->
+    <script>
+        const API_URL = 'https://backend-wiki-zaxy.onrender.com';
+        
+        async function loadCategories() {
+            try {
+                // Note: Cet endpoint ne nécessite PAS la clé admin pour lire
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Erreur chargement');
+                }
+                
+                const grid = document.getElementById('categories-grid');
+                const loading = document.getElementById('categories-loading');
+                
+                if (data.categories && data.categories.length > 0) {
+                    grid.innerHTML = data.categories.map(cat => `
+                        <a href="${cat.slug}.html" class="category-card">
+                            <div class="icon">${cat.emoji}</div>
+                            <h3>${cat.name}</h3>
+                            <p class="count">${cat.sectionsCount || 0} sections • ${cat.linksCount || 0} liens</p>
+                        </a>
+                    `).join('');
+                    
+                    grid.style.display = 'grid';
+                    loading.style.display = 'none';
+                } else {
+                    loading.innerHTML = '<p>Aucune catégorie disponible. <a href="admin.html?admin_key=adminsgpi">Créer une catégorie</a></p>';
+                }
+                
+            } catch (err) {
+                console.error('Erreur chargement catégories:', err);
+                document.getElementById('categories-loading').innerHTML = 
+                    '<p style="color: #ef4444;">Erreur de chargement des catégories</p>';
+            }
+        }
+        
+        // Charger au démarrage
+        loadCategories();
+    </script>
+</body>
+</html>
 
     <script src="script.js"></script>
 </body>
