@@ -1,4 +1,4 @@
-// const API_URL = 'https://backend-wiki-zaxy.onrender.com';
+const API_URL = 'https://backend-wiki-zaxy.onrender.com';
 // ne redéclare pas
 // utilise simplement API_URL
 
