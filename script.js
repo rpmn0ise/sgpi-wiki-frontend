@@ -1,4 +1,4 @@
-const API_URL = 'https://api.allorigins.win/raw?url=https://backend-wiki-zaxy.onrender.com';
+const API_URL = 'https://backend-wiki-zaxy.onrender.com';
 
 // ===================================
 // VÉRIFICATION ACCÈS
@@ -44,8 +44,12 @@ async function checkAuth() {
     }
 }
 
-if (!window.location.pathname.includes('auth.html') && 
-    !window.location.pathname.includes('register.html')) {
+// Vérifier l'auth SAUF sur les pages auth, register ET account
+// (account.html a sa propre vérification intégrée)
+const currentPath = window.location.pathname;
+if (!currentPath.includes('auth.html') && 
+    !currentPath.includes('register.html') &&
+    !currentPath.includes('account.html')) {
     checkAuth();
 }
 
