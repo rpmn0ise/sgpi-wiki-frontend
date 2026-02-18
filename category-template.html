@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 
+    ========================================
+    📝 INSTRUCTIONS D'UTILISATION
+    ========================================
+    1. Duplique ce fichier
+    2. Renomme-le selon la catégorie (ex: films-series-anime.html)
+    3. Change le <title> ci-dessous
+    4. Change l'emoji et le titre du <h2> (ligne ~100)
+    5. Change la classe "active" dans la sidebar (ligne ~60)
+    6. Ajoute tes sections dans la balise <main> (à partir de la ligne ~110)
+    ========================================
+    -->
+    
+    <title>Nom de la Catégorie - Wiki SGPI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+    <header>
+        <div class="header-content">
+            <h1><a href="index.html">📚 Wiki SGPI</a></h1>
+            <div class="header-actions">
+                <!-- Le pseudo sera affiché ici dynamiquement -->
+                <a href="account.html" style="margin-right: 16px; padding: 8px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-primary); text-decoration: none; font-size: 0.9rem;">Mon compte</a>
+                <button id="logout-btn" class="logout-btn">Déconnexion</button>
+                <button id="theme-toggle" aria-label="Changer de thème">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <button id="menu-toggle" class="mobile-only" aria-label="Menu">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <input type="text" id="search" placeholder="🔍 Rechercher..." autocomplete="off">
+            </div>
+
+            <nav class="nav-categories">
+                <h3>Catégories</h3>
+                <ul>
+                    <!-- 
+                    ========================================
+                    📝 AJOUTE LA CLASSE "active" SUR TA CATÉGORIE
+                    ========================================
+                    Exemple : <li><a href="films-series-anime.html" class="active">
+                    -->
+                    <li><a href="confidentialite-securite.html">🔒 Confidentialité & Sécurité</a></li>
+                    <li><a href="intelligence-artificielle.html">🤖 Intelligence Artificielle</a></li>
+                    <li><a href="films-series-anime.html">🎬 Films / Séries / Anime</a></li>
+                    <li><a href="musique-podcasts-radio.html">🎵 Musique / Podcasts / Radio</a></li>
+                    <li><a href="jeux-video.html">🎮 Jeux vidéo</a></li>
+                    <li><a href="livres-bd-mangas.html">📖 Livres / BD / Mangas</a></li>
+                    <li><a href="telechargement.html">📥 Téléchargement</a></li>
+                    <li><a href="torrents.html">🌊 Torrents</a></li>
+                    <li><a href="education.html">📚 Éducation</a></li>
+                    <li><a href="mobile.html">📱 Mobile</a></li>
+                    <li><a href="systemes.html">🐧 Systèmes</a></li>
+                    <li><a href="logiciels-outils.html">💻 Logiciels / Outils</a></li>
+                    <li><a href="stockage-partage.html">💾 Stockage & Partage</a></li>
+                    <li><a href="web-internet.html">🌐 Web / Internet</a></li>
+                    <li><a href="developpement.html">👨‍💻 Développement</a></li>
+                    <li><a href="divers.html">🎲 Divers</a></li>
+                </ul>
+            </nav>
+
+            <!-- 
+            ========================================
+            📝 TABLE DES MATIÈRES (OPTIONNELLE)
+            ========================================
+            Supprime cette section si tu n'en veux pas.
+            Sinon, ajoute des liens vers tes sections avec des #ancres
+            -->
+            <div class="toc visible">
+                <h3>Sur cette page</h3>
+                <ul>
+                    <li><a href="#section1">Nom Section 1</a></li>
+                    <li><a href="#section2">Nom Section 2</a></li>
+                    <li><a href="#section3">Nom Section 3</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content category-page">
+            
+            <!-- 
+            ========================================
+            📝 TITRE PRINCIPAL DE LA CATÉGORIE
+            ========================================
+            Change l'emoji et le nom de ta catégorie
+            -->
+            <h2>🎬 Nom de ta Catégorie</h2>
+
+            <!-- 
+            ========================================
+            📝 SECTIONS DE CONTENU
+            ========================================
+            Copie-colle cette structure pour chaque sous-catégorie.
+            L'attribut id="" permet les liens d'ancre (#section1)
+            -->
+            
+            <!-- EXEMPLE DE SECTION -->
+            <section id="section1">
+                <h3>Nom de ta sous-catégorie</h3>
+                
+                <!-- 
+                ========================================
+                📝 LISTE DE RESSOURCES (STYLE FMHY)
+                ========================================
+                Format recommandé :
+                <li><a href="URL" target="_blank">Nom</a> BADGE - Description courte.</li>
+                
+                Badges disponibles : ⭐ 🔥 🆕
+                -->
+                <ul class="resource-list">
+                    <li><a href="https://exemple.com" target="_blank">Nom de la ressource</a> ⭐ - Description courte de la ressource ici.</li>
+                    
+                    <li><a href="https://exemple2.com" target="_blank">Autre ressource</a> 🔥 - Autre description ici.</li>
+                    
+                    <li><a href="https://exemple3.com" target="_blank">Troisième ressource</a> 🆕 - Encore une description.</li>
+                </ul>
+            </section>
+
+            <!-- EXEMPLE DE DEUXIÈME SECTION -->
+            <section id="section2">
+                <h3>Autre sous-catégorie</h3>
+                
+                <ul class="resource-list">
+                    <li><a href="https://exemple4.com" target="_blank">Ressource 4</a> - Sans badge, c'est possible aussi.</li>
+                    
+                    <li><a href="https://exemple5.com" target="_blank">Ressource 5</a> ⭐ - Avec un badge recommandé.</li>
+                </ul>
+            </section>
+
+            <!-- 
+            ========================================
+            📝 AJOUTE AUTANT DE SECTIONS QUE NÉCESSAIRE
+            ========================================
+            Copie-colle la structure ci-dessus
+            -->
+
+        </main>
+
+    </div>
+
+    <button id="back-to-top" class="back-to-top" aria-label="Retour en haut">↑</button>
+
+    <footer>
+        <p>© 2026 SGPI - Wiki à usage privé | Réservé aux membres Discord</p>
+        <p>Dernière mise à jour : Février 2026</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

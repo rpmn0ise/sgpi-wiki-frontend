@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Wiki SGPI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .register-container {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+        
+        button {
+            width: 100%;
+            background: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        
+        .info-box {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+            text-align: left;
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-box p {
+            color: #444;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .link a {
+            color: #5865F2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">📚</div>
+        <h1>Inscription</h1>
+        <p class="subtitle">Créez votre compte Wiki SGPI</p>
+        
+        <div id="message" class="message"></div>
+        
+        <form id="register-form">
+            <div class="form-group">
+                <label for="registration-key">Clé d'inscription *</label>
+                <input 
+                    type="text" 
+                    id="registration-key" 
+                    placeholder="SGPI-xxxxxxxx" 
+                    required
+                    autocomplete="off"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Pseudo *</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    placeholder="Votre pseudo" 
+                    required
+                    autocomplete="username"
+                    minlength="3"
+                    maxlength="50"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe *</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Minimum 8 caractères" 
+                    required
+                    autocomplete="new-password"
+                    minlength="8"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password-confirm">Confirmer le mot de passe *</label>
+                <input 
+                    type="password" 
+                    id="password-confirm" 
+                    placeholder="Retapez votre mot de passe" 
+                    required
+                    autocomplete="new-password"
+                    minlength="8"
+                >
+            </div>
+            
+            <button type="submit" id="submit-btn">Créer mon compte</button>
+        </form>
+        
+        <div class="info-box">
+            <h3>Où obtenir une clé ?</h3>
+            <p>Les clés d'inscription sont distribuées par le staff du Discord SGPI.</p>
+            <p>Ouvrez un ticket sur le Discord pour en demander une.</p>
+        </div>
+        
+        <div class="link">
+            Déjà un compte ? <a href="auth.html">Se connecter</a>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://api.allorigins.win/raw?url=https://backend-wiki-zaxy.onrender.com';
+        
+        const form = document.getElementById('register-form');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+        
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+            
+            const registrationKey = document.getElementById('registration-key').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password-confirm').value;
+            
+            if (password !== passwordConfirm) {
+                showMessage('Les mots de passe ne correspondent pas', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showMessage('Le pseudo doit contenir au moins 3 caractères', 'error');
+                return;
+            }
+            
+            if (password.length < 8) {
+                showMessage('Le mot de passe doit contenir au moins 8 caractères', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Création en cours...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        registrationKey: registrationKey,
+                        username: username,
+                        password: password,
+                        passwordConfirm: passwordConfirm
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage(data.message || 'Compte créé avec succès !', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'auth.html?registered=true';
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Erreur lors de l\'inscription', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Créer mon compte';
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de connexion au serveur', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Créer mon compte';
+            }
+        });
+    </script>
+</body>
+</html>

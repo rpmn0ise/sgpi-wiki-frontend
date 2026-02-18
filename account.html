@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon compte - Wiki SGPI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+    <header>
+        <div class="header-content">
+            <h1><a href="index.html">📚 Wiki SGPI</a></h1>
+            <div class="header-actions">
+                <!-- Le pseudo sera affiché ici dynamiquement -->
+                <a href="account.html" style="margin-right: 16px; padding: 8px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-primary); text-decoration: none; font-size: 0.9rem;">Mon compte</a>
+                <button id="logout-btn" class="logout-btn">Déconnexion</button>
+                <button id="theme-toggle" aria-label="Changer de thème">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <button id="menu-toggle" class="mobile-only" aria-label="Menu">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <input type="text" id="search" placeholder="🔍 Rechercher..." autocomplete="off">
+            </div>
+
+            <nav class="nav-categories">
+                <h3>Catégories</h3>
+                <ul>
+                    <li><a href="confidentialite-securite.html">🔒 Confidentialité & Sécurité</a></li>
+                    <li><a href="intelligence-artificielle.html">🤖 Intelligence Artificielle</a></li>
+                    <li><a href="films-series-anime.html">🎬 Films / Séries / Anime</a></li>
+                    <li><a href="musique-podcasts-radio.html">🎵 Musique / Podcasts / Radio</a></li>
+                    <li><a href="jeux-video.html">🎮 Jeux vidéo</a></li>
+                    <li><a href="livres-bd-mangas.html">📖 Livres / BD / Mangas</a></li>
+                    <li><a href="telechargement.html">📥 Téléchargement</a></li>
+                    <li><a href="torrents.html">🌊 Torrents</a></li>
+                    <li><a href="education.html">📚 Éducation</a></li>
+                    <li><a href="mobile.html">📱 Mobile</a></li>
+                    <li><a href="systemes.html">🐧 Systèmes</a></li>
+                    <li><a href="logiciels-outils.html">💻 Logiciels / Outils</a></li>
+                    <li><a href="stockage-partage.html">💾 Stockage & Partage</a></li>
+                    <li><a href="web-internet.html">🌐 Web / Internet</a></li>
+                    <li><a href="developpement.html">👨‍💻 Développement</a></li>
+                    <li><a href="divers.html">🎲 Divers</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content category-page">
+            
+            <h2>👤 Mon compte</h2>
+
+            <section>
+                <h3>Informations du compte</h3>
+                
+                <div id="account-loading" style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                    Chargement...
+                </div>
+                
+                <div id="account-info" style="display: none;">
+                    <div style="background: var(--bg-secondary); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <p><strong>Pseudo :</strong> <span id="username"></span></p>
+                        <p><strong>Compte créé le :</strong> <span id="created-at"></span></p>
+                        <p><strong>Dernière connexion :</strong> <span id="last-login"></span></p>
+                        <p><strong>Sessions actives :</strong> <span id="active-sessions"></span></p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>Changer de mot de passe</h3>
+                
+                <div id="password-message" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 20px;"></div>
+                
+                <form id="change-password-form" style="max-width: 500px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--text-primary);">Mot de passe actuel</label>
+                        <input type="password" id="current-password" required style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--text-primary);">Nouveau mot de passe</label>
+                        <input type="password" id="new-password" required minlength="8" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: var(--text-primary);">Confirmer le nouveau mot de passe</label>
+                        <input type="password" id="new-password-confirm" required minlength="8" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);">
+                    </div>
+                    
+                    <button type="submit" id="change-password-btn" style="padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        Changer le mot de passe
+                    </button>
+                </form>
+            </section>
+
+        </main>
+
+    </div>
+
+    <button id="back-to-top" class="back-to-top" aria-label="Retour en haut">↑</button>
+
+    <footer>
+        <p>© 2026 SGPI - Wiki à usage privé | Réservé aux membres Discord</p>
+        <p>Dernière mise à jour : Février 2026</p>
+    </footer>
+
+    <script>
+        const API_URL = 'https://api.allorigins.win/raw?url=https://backend-wiki-zaxy.onrender.com';
+    </script>
+    <script src="script.js"></script>
+    <script>
+        // Code spécifique à la page account
+        async function loadAccountInfo() {
+            const token = localStorage.getItem('wiki_access_token');
+            
+            if (!token) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/account`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Session invalide');
+                }
+                
+                const data = await response.json();
+                const user = data.user;
+                
+                document.getElementById('username').textContent = user.username;
+                document.getElementById('created-at').textContent = new Date(user.createdAt).toLocaleDateString('fr-FR');
+                document.getElementById('last-login').textContent = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('fr-FR') : 'Jamais';
+                document.getElementById('active-sessions').textContent = user.activeSessions || 0;
+                
+                document.getElementById('account-loading').style.display = 'none';
+                document.getElementById('account-info').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                localStorage.removeItem('wiki_access_token');
+                window.location.href = 'auth.html';
+            }
+        }
+        
+        // Changer mot de passe
+        document.getElementById('change-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const messageDiv = document.getElementById('password-message');
+            const btn = document.getElementById('change-password-btn');
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const newPasswordConfirm = document.getElementById('new-password-confirm').value;
+            
+            if (newPassword !== newPasswordConfirm) {
+                messageDiv.textContent = 'Les nouveaux mots de passe ne correspondent pas';
+                messageDiv.style.display = 'block';
+                messageDiv.style.background = '#fee';
+                messageDiv.style.color = '#c33';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Changement en cours...';
+            
+            try {
+                const token = localStorage.getItem('wiki_access_token');
+                
+                const response = await fetch(`${API_URL}/api/auth/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword: currentPassword,
+                        newPassword: newPassword,
+                        newPasswordConfirm: newPasswordConfirm
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.textContent = data.message || 'Mot de passe modifié avec succès !';
+                    messageDiv.style.display = 'block';
+                    messageDiv.style.background = '#efe';
+                    messageDiv.style.color = '#3c3';
+                    
+                    document.getElementById('change-password-form').reset();
+                } else {
+                    messageDiv.textContent = data.error || 'Erreur lors du changement de mot de passe';
+                    messageDiv.style.display = 'block';
+                    messageDiv.style.background = '#fee';
+                    messageDiv.style.color = '#c33';
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                messageDiv.textContent = 'Erreur de connexion au serveur';
+                messageDiv.style.display = 'block';
+                messageDiv.style.background = '#fee';
+                messageDiv.style.color = '#c33';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Changer le mot de passe';
+            }
+        });
+        
+        loadAccountInfo();
+    </script>
+</body>
+</html>

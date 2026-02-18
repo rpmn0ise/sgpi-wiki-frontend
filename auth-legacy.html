@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès - Wiki SGPI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 1rem;
+        }
+        
+        input[type="password"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+        
+        button {
+            width: 100%;
+            background: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4);
+        }
+        
+        .error {
+            color: #ef4444;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .info-box {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 24px;
+            text-align: left;
+        }
+        
+        .info-box h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-box p {
+            color: #444;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">📚</div>
+        <h1>Wiki SGPI</h1>
+        <p class="subtitle">Accès réservé aux membres Discord</p>
+        
+        <form id="access-form">
+            <input 
+                type="password" 
+                id="access-code" 
+                placeholder="Code d'accès" 
+                autocomplete="off"
+                required
+            >
+            <button type="submit">Accéder au Wiki</button>
+        </form>
+        
+        <p class="error" id="error-msg">❌ Code incorrect</p>
+        
+        <div class="info-box">
+            <h3>Où trouver le code ?</h3>
+            <p>Le code d'accès est disponible dans le salon <strong>#📚-wiki</strong> du serveur Discord SGPI.</p>
+        </div>
+    </div>
+    
+    <script>
+        // ⚠️ CHANGE CE CODE RÉGULIÈREMENT
+        const CORRECT_CODE = 'sgpi2026wiki';
+        
+        document.getElementById('access-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const inputCode = document.getElementById('access-code').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (inputCode === CORRECT_CODE) {
+                // Sauvegarder l'accès (expire après 7 jours)
+                const expiryTime = Date.now() + (7 * 24 * 60 * 60 * 1000);
+                localStorage.setItem('wiki_access', 'granted');
+                localStorage.setItem('wiki_access_expiry', expiryTime);
+                
+                // Rediriger vers le wiki
+                window.location.href = 'index.html';
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('access-code').value = '';
+                document.getElementById('access-code').focus();
+                
+                // Cacher le message après 3 secondes
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

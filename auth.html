@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Wiki SGPI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+        
+        button {
+            width: 100%;
+            background: #5865F2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .link a {
+            color: #5865F2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">📚</div>
+        <h1>Connexion</h1>
+        <p class="subtitle">Accédez au Wiki SGPI</p>
+        
+        <div id="message" class="message"></div>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Pseudo</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    placeholder="Votre pseudo" 
+                    required
+                    autocomplete="username"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Votre mot de passe" 
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+            
+            <button type="submit" id="submit-btn">Se connecter</button>
+        </form>
+        
+        <div class="link">
+            Pas encore de compte ? <a href="register.html">S'inscrire</a>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'https://api.allorigins.win/raw?url=https://backend-wiki-zaxy.onrender.com';
+        
+        const form = document.getElementById('login-form');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+        }
+        
+        function hideMessage() {
+            messageDiv.style.display = 'none';
+        }
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('registered') === 'true') {
+            showMessage('Compte créé avec succès ! Vous pouvez maintenant vous connecter.', 'success');
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Connexion...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('wiki_access_token', data.token);
+                    localStorage.setItem('wiki_access_expiry', data.expiresAt);
+                    localStorage.setItem('wiki_username', data.user.username);
+                    
+                    showMessage('Connexion réussie ! Redirection...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showMessage(data.error || 'Erreur de connexion', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Se connecter';
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de connexion au serveur', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Se connecter';
+            }
+        });
+    </script>
+</body>
+</html>
