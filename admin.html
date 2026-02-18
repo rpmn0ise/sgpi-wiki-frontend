@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Wiki SGPI</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques au panel admin */
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 2px solid var(--accent);
+        }
+        
+        .admin-header h1 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            margin: 0 0 20px 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .list-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+        
+        .list-item:hover {
+            border-color: var(--accent);
+            background: var(--bg-hover);
+        }
+        
+        .list-item-content {
+            flex: 1;
+        }
+        
+        .list-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+        
+        .list-item-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .list-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .list-item-actions button {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .emoji-picker {
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 8px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            display: inline-block;
+            background: var(--bg-primary);
+        }
+        
+        .emoji-picker:hover {
+            border-color: var(--accent);
+        }
+        
+        .badge-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .badge-option {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+        }
+        
+        .badge-option:hover {
+            border-color: var(--accent);
+        }
+        
+        .badge-option.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+        
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .message.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        
+        .dark-mode .message.success {
+            background: #065f46;
+            color: #d1fae5;
+        }
+        
+        .dark-mode .message.error {
+            background: #991b1b;
+            color: #fee2e2;
+        }
+        
+        .dark-mode .message.info {
+            background: #1e40af;
+            color: #dbeafe;
+        }
+        
+        .preview-section {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .preview-section h3 {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        
+        .modal-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        .reorder-controls {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .reorder-controls button {
+            padding: 4px 8px;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+        
+        .log-entry {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-action {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .log-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <header>
+        <div class="header-content">
+            <h1><a href="index.html">📚 Wiki SGPI</a></h1>
+            <div class="header-actions">
+                <a href="account.html" style="margin-right: 16px; padding: 8px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-primary); text-decoration: none; font-size: 0.9rem;">Mon compte</a>
+                <button id="logout-btn" class="logout-btn">Déconnexion</button>
+                <button id="theme-toggle" aria-label="Changer de thème">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container" style="margin-top: 80px;">
+        
+        <div class="admin-header">
+            <h1>👑 Panel Admin - Gestion du Contenu</h1>
+            <p style="margin: 0; color: var(--text-secondary);">Gérez les catégories, sections et liens du wiki</p>
+        </div>
+
+        <div id="message-container"></div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="categories">📁 Catégories</button>
+            <button class="tab" data-tab="sections">📂 Sections</button>
+            <button class="tab" data-tab="links">🔗 Liens</button>
+            <button class="tab" data-tab="logs">📋 Logs</button>
+        </div>
+
+        <!-- Tab: Catégories -->
+        <div class="tab-content active" id="tab-categories">
+            <div class="card">
+                <h2>Gestion des Catégories</h2>
+                <button class="btn btn-primary" onclick="openCategoryModal()">➕ Nouvelle Catégorie</button>
+                
+                <div id="categories-list" style="margin-top: 20px;">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Sections -->
+        <div class="tab-content" id="tab-sections">
+            <div class="card">
+                <h2>Gestion des Sections</h2>
+                
+                <div class="form-group">
+                    <label>Sélectionner une catégorie</label>
+                    <select id="section-category-select" onchange="loadSectionsForCategory()">
+                        <option value="">-- Choisir une catégorie --</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="openSectionModal()" id="add-section-btn" disabled>➕ Nouvelle Section</button>
+                
+                <div id="sections-list" style="margin-top: 20px;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📂</div>
+                        <p>Sélectionnez une catégorie pour voir ses sections</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Liens -->
+        <div class="tab-content" id="tab-links">
+            <div class="card">
+                <h2>Gestion des Liens</h2>
+                
+                <div class="form-group">
+                    <label>Sélectionner une catégorie</label>
+                    <select id="link-category-select" onchange="loadSectionsForLinks()">
+                        <option value="">-- Choisir une catégorie --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sélectionner une section</label>
+                    <select id="link-section-select" onchange="loadLinksForSection()" disabled>
+                        <option value="">-- Choisir une section --</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="openLinkModal()" id="add-link-btn" disabled>➕ Nouveau Lien</button>
+                
+                <div id="links-list" style="margin-top: 20px;">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔗</div>
+                        <p>Sélectionnez une catégorie et une section pour voir les liens</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Logs -->
+        <div class="tab-content" id="tab-logs">
+            <div class="card">
+                <h2>Historique des Modifications</h2>
+                <button class="btn btn-secondary" onclick="loadLogs()">🔄 Actualiser</button>
+                
+                <div id="logs-list" style="margin-top: 20px;">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Catégorie -->
+    <div class="modal" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="category-modal-title">Nouvelle Catégorie</h2>
+                <button class="modal-close" onclick="closeCategoryModal()">×</button>
+            </div>
+            
+            <form id="category-form">
+                <input type="hidden" id="category-id">
+                
+                <div class="form-group">
+                    <label>Emoji</label>
+                    <input type="text" id="category-emoji" placeholder="🔒" maxlength="2" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nom de la catégorie</label>
+                    <input type="text" id="category-name" placeholder="Ex: Confidentialité & Sécurité" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Slug (URL)</label>
+                    <input type="text" id="category-slug" placeholder="Ex: confidentialite-securite" required>
+                    <small style="color: var(--text-secondary);">Utilisé pour le nom de fichier .html</small>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Section -->
+    <div class="modal" id="section-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="section-modal-title">Nouvelle Section</h2>
+                <button class="modal-close" onclick="closeSectionModal()">×</button>
+            </div>
+            
+            <form id="section-form">
+                <input type="hidden" id="section-id">
+                <input type="hidden" id="section-category-id">
+                
+                <div class="form-group">
+                    <label>Nom de la section</label>
+                    <input type="text" id="section-name" placeholder="Ex: Navigateurs" required>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeSectionModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Lien -->
+    <div class="modal" id="link-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="link-modal-title">Nouveau Lien</h2>
+                <button class="modal-close" onclick="closeLinkModal()">×</button>
+            </div>
+            
+            <form id="link-form">
+                <input type="hidden" id="link-id">
+                <input type="hidden" id="link-category-id">
+                <input type="hidden" id="link-section-id">
+                
+                <div class="form-group">
+                    <label>Nom du lien</label>
+                    <input type="text" id="link-name" placeholder="Ex: Brave Browser" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" id="link-url" placeholder="https://..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="link-description" placeholder="Description courte du lien"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Badge (optionnel)</label>
+                    <div class="badge-selector">
+                        <div class="badge-option" data-badge="" onclick="selectBadge('')">Aucun</div>
+                        <div class="badge-option" data-badge="⭐" onclick="selectBadge('⭐')">⭐ Recommandé</div>
+                        <div class="badge-option" data-badge="🔥" onclick="selectBadge('🔥')">🔥 Essentiel</div>
+                        <div class="badge-option" data-badge="🆕" onclick="selectBadge('🆕')">🆕 Nouveau</div>
+                    </div>
+                    <input type="text" id="link-badge" placeholder="Ou badge personnalisé" style="margin-top: 12px;">
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeLinkModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://backend-wiki-zaxy.onrender.com';
+        const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || 'adminsgpi';
+        
+        let currentCategories = [];
+        let currentSections = [];
+        let currentLinks = [];
+        
+        // ===================================
+        // TABS
+        // ===================================
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+                
+                // Charger les données si nécessaire
+                if (tabName === 'categories') loadCategories();
+                if (tabName === 'logs') loadLogs();
+            });
+        });
+        
+        // ===================================
+        // MESSAGES
+        // ===================================
+        
+        function showMessage(text, type = 'info') {
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = text;
+            container.innerHTML = '';
+            container.appendChild(div);
+            
+            setTimeout(() => {
+                div.remove();
+            }, 5000);
+        }
+        
+        // ===================================
+        // CATÉGORIES
+        // ===================================
+        
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories`, {
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error);
+                
+                currentCategories = data.categories;
+                renderCategories();
+                updateCategorySelects();
+            } catch (err) {
+                showMessage('Erreur chargement catégories: ' + err.message, 'error');
+            }
+        }
+        
+        function renderCategories() {
+            const list = document.getElementById('categories-list');
+            
+            if (currentCategories.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📁</div><p>Aucune catégorie. Créez-en une !</p></div>';
+                return;
+            }
+            
+            list.innerHTML = currentCategories.map((cat, index) => `
+                <div class="list-item">
+                    <div style="font-size: 2rem;">${cat.emoji}</div>
+                    <div class="list-item-content">
+                        <div class="list-item-title">${cat.name}</div>
+                        <div class="list-item-meta">${cat.sectionsCount} sections • ${cat.linksCount} liens</div>
+                    </div>
+                    <div class="reorder-controls">
+                        ${index > 0 ? `<button class="btn btn-secondary" onclick="moveCategory('${cat._id}', 'up')">↑</button>` : ''}
+                        ${index < currentCategories.length - 1 ? `<button class="btn btn-secondary" onclick="moveCategory('${cat._id}', 'down')">↓</button>` : ''}
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="editCategory('${cat._id}')">✏️ Modifier</button>
+                        <button class="btn btn-danger" onclick="deleteCategory('${cat._id}', '${cat.name}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateCategorySelects() {
+            const selects = [
+                document.getElementById('section-category-select'),
+                document.getElementById('link-category-select')
+            ];
+            
+            selects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">-- Choisir une catégorie --</option>' +
+                    currentCategories.map(cat => 
+                        `<option value="${cat._id}">${cat.emoji} ${cat.name}</option>`
+                    ).join('');
+                if (currentValue) select.value = currentValue;
+            });
+        }
+        
+        function openCategoryModal(categoryId = null) {
+            const modal = document.getElementById('category-modal');
+            const form = document.getElementById('category-form');
+            const title = document.getElementById('category-modal-title');
+            
+            form.reset();
+            
+            if (categoryId) {
+                const cat = currentCategories.find(c => c._id === categoryId);
+                title.textContent = 'Modifier la Catégorie';
+                document.getElementById('category-id').value = cat._id;
+                document.getElementById('category-emoji').value = cat.emoji;
+                document.getElementById('category-name').value = cat.name;
+                document.getElementById('category-slug').value = cat.slug;
+            } else {
+                title.textContent = 'Nouvelle Catégorie';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeCategoryModal() {
+            document.getElementById('category-modal').classList.remove('active');
+        }
+        
+        function editCategory(id) {
+            openCategoryModal(id);
+        }
+        
+        async function deleteCategory(id, name) {
+            if (!confirm(`Supprimer la catégorie "${name}" ?\n\nTous les liens seront également supprimés.`)) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showMessage('Catégorie supprimée', 'success');
+                loadCategories();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        async function moveCategory(id, direction) {
+            const index = currentCategories.findIndex(c => c._id === id);
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            
+            const reordered = [...currentCategories];
+            [reordered[index], reordered[newIndex]] = [reordered[newIndex], reordered[index]];
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/reorder`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ categoryIds: reordered.map(c => c._id) })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                loadCategories();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        document.getElementById('category-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('category-id').value;
+            const emoji = document.getElementById('category-emoji').value;
+            const name = document.getElementById('category-name').value;
+            const slug = document.getElementById('category-slug').value;
+            
+            try {
+                const url = id ? `${API_URL}/api/admin/categories/${id}` : `${API_URL}/api/admin/categories`;
+                const method = id ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ name, emoji, slug })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showMessage(id ? 'Catégorie modifiée' : 'Catégorie créée', 'success');
+                closeCategoryModal();
+                loadCategories();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        });
+        
+        // ===================================
+        // SECTIONS
+        // ===================================
+        
+        async function loadSectionsForCategory() {
+            const categoryId = document.getElementById('section-category-select').value;
+            
+            if (!categoryId) {
+                document.getElementById('sections-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📂</div><p>Sélectionnez une catégorie</p></div>';
+                document.getElementById('add-section-btn').disabled = true;
+                return;
+            }
+            
+            document.getElementById('add-section-btn').disabled = false;
+            
+            const category = currentCategories.find(c => c._id === categoryId);
+            currentSections = category.sections || [];
+            
+            renderSections();
+        }
+        
+        function renderSections() {
+            const list = document.getElementById('sections-list');
+            
+            if (currentSections.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📂</div><p>Aucune section. Créez-en une !</p></div>';
+                return;
+            }
+            
+            list.innerHTML = currentSections.map((sec, index) => `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <div class="list-item-title">${sec.name}</div>
+                    </div>
+                    <div class="reorder-controls">
+                        ${index > 0 ? `<button class="btn btn-secondary" onclick="moveSection('${sec.id}', 'up')">↑</button>` : ''}
+                        ${index < currentSections.length - 1 ? `<button class="btn btn-secondary" onclick="moveSection('${sec.id}', 'down')">↓</button>` : ''}
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="editSection('${sec.id}')">✏️ Modifier</button>
+                        <button class="btn btn-danger" onclick="deleteSection('${sec.id}', '${sec.name}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function openSectionModal(sectionId = null) {
+            const categoryId = document.getElementById('section-category-select').value;
+            if (!categoryId) return;
+            
+            const modal = document.getElementById('section-modal');
+            const form = document.getElementById('section-form');
+            const title = document.getElementById('section-modal-title');
+            
+            form.reset();
+            document.getElementById('section-category-id').value = categoryId;
+            
+            if (sectionId) {
+                const sec = currentSections.find(s => s.id === sectionId);
+                title.textContent = 'Modifier la Section';
+                document.getElementById('section-id').value = sec.id;
+                document.getElementById('section-name').value = sec.name;
+            } else {
+                title.textContent = 'Nouvelle Section';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeSectionModal() {
+            document.getElementById('section-modal').classList.remove('active');
+        }
+        
+        function editSection(id) {
+            openSectionModal(id);
+        }
+        
+        async function deleteSection(id, name) {
+            if (!confirm(`Supprimer la section "${name}" ?\n\nTous les liens seront également supprimés.`)) return;
+            
+            const categoryId = document.getElementById('section-category-select').value;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}/sections/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showMessage('Section supprimée', 'success');
+                await loadCategories();
+                loadSectionsForCategory();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        async function moveSection(id, direction) {
+            const index = currentSections.findIndex(s => s.id === id);
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            
+            const reordered = [...currentSections];
+            [reordered[index], reordered[newIndex]] = [reordered[newIndex], reordered[index]];
+            
+            const categoryId = document.getElementById('section-category-select').value;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}/sections/reorder`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ sectionIds: reordered.map(s => s.id) })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                await loadCategories();
+                loadSectionsForCategory();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        document.getElementById('section-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const categoryId = document.getElementById('section-category-id').value;
+            const sectionId = document.getElementById('section-id').value;
+            const name = document.getElementById('section-name').value;
+            
+            try {
+                const url = sectionId 
+                    ? `${API_URL}/api/admin/categories/${categoryId}/sections/${sectionId}`
+                    : `${API_URL}/api/admin/categories/${categoryId}/sections`;
+                const method = sectionId ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ name })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showMessage(sectionId ? 'Section modifiée' : 'Section créée', 'success');
+                closeSectionModal();
+                await loadCategories();
+                loadSectionsForCategory();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        });
+        
+        // ===================================
+        // LIENS
+        // ===================================
+        
+        function loadSectionsForLinks() {
+            const categoryId = document.getElementById('link-category-select').value;
+            const sectionSelect = document.getElementById('link-section-select');
+            
+            if (!categoryId) {
+                sectionSelect.disabled = true;
+                sectionSelect.innerHTML = '<option value="">-- Choisir une section --</option>';
+                document.getElementById('add-link-btn').disabled = true;
+                document.getElementById('links-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Sélectionnez une catégorie et une section</p></div>';
+                return;
+            }
+            
+            const category = currentCategories.find(c => c._id === categoryId);
+            const sections = category.sections || [];
+            
+            sectionSelect.disabled = false;
+            sectionSelect.innerHTML = '<option value="">-- Choisir une section --</option>' +
+                sections.map(sec => `<option value="${sec.id}">${sec.name}</option>`).join('');
+        }
+        
+        async function loadLinksForSection() {
+            const categoryId = document.getElementById('link-category-select').value;
+            const sectionId = document.getElementById('link-section-select').value;
+            
+            if (!categoryId || !sectionId) {
+                document.getElementById('add-link-btn').disabled = true;
+                document.getElementById('links-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Sélectionnez une section</p></div>';
+                return;
+            }
+            
+            document.getElementById('add-link-btn').disabled = false;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/links?categoryId=${categoryId}&sectionId=${sectionId}`, {
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                currentLinks = data.links;
+                renderLinks();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        function renderLinks() {
+            const list = document.getElementById('links-list');
+            
+            if (currentLinks.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Aucun lien. Créez-en un !</p></div>';
+                return;
+            }
+            
+            list.innerHTML = currentLinks.map((link, index) => `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <div class="list-item-title">${link.badge ? link.badge + ' ' : ''}${link.name}</div>
+                        <div class="list-item-meta">${link.url}</div>
+                        ${link.description ? `<div class="list-item-meta">${link.description}</div>` : ''}
+                    </div>
+                    <div class="reorder-controls">
+                        ${index > 0 ? `<button class="btn btn-secondary" onclick="moveLink('${link._id}', 'up')">↑</button>` : ''}
+                        ${index < currentLinks.length - 1 ? `<button class="btn btn-secondary" onclick="moveLink('${link._id}', 'down')">↓</button>` : ''}
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="editLink('${link._id}')">✏️ Modifier</button>
+                        <button class="btn btn-danger" onclick="deleteLink('${link._id}', '${link.name}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function selectBadge(badge) {
+            document.querySelectorAll('.badge-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`[data-badge="${badge}"]`).classList.add('selected');
+            document.getElementById('link-badge').value = badge;
+        }
+        
+        function openLinkModal(linkId = null) {
+            const categoryId = document.getElementById('link-category-select').value;
+            const sectionId = document.getElementById('link-section-select').value;
+            
+            if (!categoryId || !sectionId) return;
+            
+            const modal = document.getElementById('link-modal');
+            const form = document.getElementById('link-form');
+            const title = document.getElementById('link-modal-title');
+            
+            form.reset();
+            document.querySelectorAll('.badge-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('[data-badge=""]').classList.add('selected');
+            
+            document.getElementById('link-category-id').value = categoryId;
+            document.getElementById('link-section-id').value = sectionId;
+            
+            if (linkId) {
+                const link = currentLinks.find(l => l._id === linkId);
+                title.textContent = 'Modifier le Lien';
+                document.getElementById('link-id').value = link._id;
+                document.getElementById('link-name').value = link.name;
+                document.getElementById('link-url').value = link.url;
+                document.getElementById('link-description').value = link.description || '';
+                document.getElementById('link-badge').value = link.badge || '';
+                
+                if (link.badge) {
+                    const badgeOpt = document.querySelector(`[data-badge="${link.badge}"]`);
+                    if (badgeOpt) {
+                        document.querySelectorAll('.badge-option').forEach(opt => opt.classList.remove('selected'));
+                        badgeOpt.classList.add('selected');
+                    }
+                }
+            } else {
+                title.textContent = 'Nouveau Lien';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function closeLinkModal() {
+            document.getElementById('link-modal').classList.remove('active');
+        }
+        
+        function editLink(id) {
+            openLinkModal(id);
+        }
+        
+        async function deleteLink(id, name) {
+            if (!confirm(`Supprimer le lien "${name}" ?`)) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/links/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showMessage('Lien supprimé', 'success');
+                loadLinksForSection();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        async function moveLink(id, direction) {
+            const index = currentLinks.findIndex(l => l._id === id);
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            
+            const reordered = [...currentLinks];
+            [reordered[index], reordered[newIndex]] = [reordered[newIndex], reordered[index]];
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/links/reorder`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ linkIds: reordered.map(l => l._id) })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                loadLinksForSection();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        }
+        
+        document.getElementById('link-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('link-id').value;
+            const categoryId = document.getElementById('link-category-id').value;
+            const sectionId = document.getElementById('link-section-id').value;
+            const name = document.getElementById('link-name').value;
+            const url = document.getElementById('link-url').value;
+            const description = document.getElementById('link-description').value;
+            const badge = document.getElementById('link-badge').value;
+            
+            try {
+                const urlPath = id ? `${API_URL}/api/admin/links/${id}` : `${API_URL}/api/admin/links`;
+                const method = id ? 'PUT' : 'POST';
+                
+                const res = await fetch(urlPath, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ categoryId, sectionId, name, url, description, badge })
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                showMessage(id ? 'Lien modifié' : 'Lien créé', 'success');
+                closeLinkModal();
+                loadLinksForSection();
+            } catch (err) {
+                showMessage('Erreur: ' + err.message, 'error');
+            }
+        });
+        
+        // ===================================
+        // LOGS
+        // ===================================
+        
+        async function loadLogs() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/logs?limit=50`, {
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                
+                const list = document.getElementById('logs-list');
+                
+                if (data.logs.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>Aucun log</p></div>';
+                    return;
+                }
+                
+                list.innerHTML = data.logs.map(log => `
+                    <div class="log-entry">
+                        <span class="log-action">${formatAction(log.action)}</span>
+                        ${log.target ? ` : ${log.target}` : ''}
+                        <br>
+                        <span class="log-time">${new Date(log.timestamp).toLocaleString('fr-FR')}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                showMessage('Erreur chargement logs: ' + err.message, 'error');
+            }
+        }
+        
+        function formatAction(action) {
+            const actions = {
+                'create_category': '➕ Catégorie créée',
+                'update_category': '✏️ Catégorie modifiée',
+                'delete_category': '🗑️ Catégorie supprimée',
+                'reorder_categories': '↕️ Catégories réorganisées',
+                'create_section': '➕ Section créée',
+                'update_section': '✏️ Section modifiée',
+                'delete_section': '🗑️ Section supprimée',
+                'reorder_sections': '↕️ Sections réorganisées',
+                'create_link': '➕ Lien créé',
+                'update_link': '✏️ Lien modifié',
+                'delete_link': '🗑️ Lien supprimé',
+                'reorder_links': '↕️ Liens réorganisés'
+            };
+            return actions[action] || action;
+        }
+        
+        // ===================================
+        // INIT
+        // ===================================
+        
+        // Vérifier l'accès admin
+        if (!ADMIN_KEY) {
+            document.body.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif;"><div style="text-align: center;"><h1>❌ Accès refusé</h1><p>Clé admin manquante dans l\'URL</p></div></div>';
+        } else {
+            loadCategories();
+        }
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
