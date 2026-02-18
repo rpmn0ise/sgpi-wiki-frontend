@@ -1,0 +1,15 @@
+{
+  "name": "sgpi-wiki-frontend",
+  "version": "1.0.0",
+  "description": "Frontend du Wiki SGPI",
+  "main": "server-static.js",
+  "scripts": {
+    "start": "node server-static.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
