@@ -117,7 +117,7 @@
                 
                 if (data.categories && data.categories.length > 0) {
                     grid.innerHTML = data.categories.map(cat => `
-                        <a href="${cat.slug}.html" class="category-card">
+                        <a href="category.html?slug=${cat.slug}" class="category-card">
                             <div class="icon">${cat.emoji}</div>
                             <h3>${cat.name}</h3>
                             <p class="count">${cat.sectionsCount || 0} sections • ${cat.linksCount || 0} liens</p>
