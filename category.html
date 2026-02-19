@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Catégorie - Wiki SGPI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-mode">
+
+    <header>
+        <div class="header-content">
+            <h1><a href="index.html">📚 Wiki SGPI</a></h1>
+            <div class="header-actions">
+                <a href="account.html" style="margin-right: 16px; padding: 8px 16px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-primary); text-decoration: none; font-size: 0.9rem;">Mon compte</a>
+                <button id="logout-btn" class="logout-btn">Déconnexion</button>
+                <button id="theme-toggle" aria-label="Changer de thème">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <button id="menu-toggle" class="mobile-only" aria-label="Menu">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <input type="text" id="search" placeholder="🔍 Rechercher..." autocomplete="off">
+            </div>
+
+            <nav class="nav-categories">
+                <h3>Catégories</h3>
+                <ul id="sidebar-categories">
+                    <li style="text-align: center; color: var(--text-secondary);">Chargement...</li>
+                </ul>
+            </nav>
+
+            <div class="toc" id="toc" style="display: none;">
+                <h3>Sur cette page</h3>
+                <ul id="toc-list"></ul>
+            </div>
+        </aside>
+
+        <main class="main-content category-page">
+            
+            <div id="loading" style="text-align: center; padding: 60px; color: var(--text-secondary);">
+                <div style="font-size: 3rem; margin-bottom: 20px;">⏳</div>
+                <p>Chargement...</p>
+            </div>
+
+            <div id="error" style="display: none; text-align: center; padding: 60px;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">❌</div>
+                <h2 style="color: var(--text-primary); margin-bottom: 10px;">Catégorie introuvable</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Cette catégorie n'existe pas ou a été supprimée.</p>
+                <a href="index.html" style="display: inline-block; padding: 12px 24px; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">← Retour à l'accueil</a>
+            </div>
+
+            <div id="content" style="display: none;">
+                <h2 id="category-title"></h2>
+                <div id="sections-container"></div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <button id="back-to-top" class="back-to-top" aria-label="Retour en haut">↑</button>
+
+    <footer>
+        <p>© 2026 SGPI - Wiki à usage privé | Réservé aux membres Discord</p>
+        <p>Dernière mise à jour : Février 2026</p>
+    </footer>
+
+    <script src="script.js"></script>
+    
+    <script>
+        const API_URL = 'https://backend-wiki-zaxy.onrender.com';
+        
+        // Récupérer le slug depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        
+        if (!slug) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+        } else {
+            loadCategory(slug);
+        }
+        
+        // Charger les catégories pour la sidebar
+        async function loadSidebarCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                
+                if (res.ok && data.categories) {
+                    const ul = document.getElementById('sidebar-categories');
+                    ul.innerHTML = data.categories.map(cat => {
+                        const isActive = cat.slug === slug ? 'class="active"' : '';
+                        return `<li><a href="category.html?slug=${cat.slug}" ${isActive}>${cat.emoji} ${cat.name}</a></li>`;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error('Erreur chargement sidebar:', err);
+            }
+        }
+        
+        // Charger la catégorie
+        async function loadCategory(slug) {
+            try {
+                const res = await fetch(`${API_URL}/api/categories/${slug}`);
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error);
+                }
+                
+                const category = data.category;
+                
+                // Titre de la page
+                document.getElementById('page-title').textContent = `${category.emoji} ${category.name} - Wiki SGPI`;
+                document.getElementById('category-title').innerHTML = `${category.emoji} ${category.name}`;
+                
+                // Générer les sections
+                const sectionsContainer = document.getElementById('sections-container');
+                
+                if (!category.sections || category.sections.length === 0) {
+                    sectionsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">Aucune section dans cette catégorie. <a href="admin.html?admin_key=adminsgpi">Ajouter du contenu</a></p>';
+                } else {
+                    sectionsContainer.innerHTML = category.sections.map(section => {
+                        const links = section.links || [];
+                        
+                        return `
+                            <section id="section-${section.id}">
+                                <h3>${section.name}</h3>
+                                ${links.length === 0 ? 
+                                    '<p style="color: var(--text-secondary); font-style: italic;">Aucun lien dans cette section.</p>' :
+                                    `<ul class="resource-list">
+                                        ${links.map(link => `
+                                            <li>
+                                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.name}</a>
+                                                ${link.badge ? ` ${link.badge}` : ''}
+                                                ${link.description ? ` - ${link.description}` : ''}
+                                            </li>
+                                        `).join('')}
+                                    </ul>`
+                                }
+                            </section>
+                        `;
+                    }).join('');
+                    
+                    // Générer la table des matières
+                    const tocList = document.getElementById('toc-list');
+                    tocList.innerHTML = category.sections.map(section => 
+                        `<li><a href="#section-${section.id}">${section.name}</a></li>`
+                    ).join('');
+                    document.getElementById('toc').style.display = 'block';
+                }
+                
+                // Afficher le contenu
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+            } catch (err) {
+                console.error('Erreur chargement catégorie:', err);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        loadSidebarCategories();
+    </script>
+</body>
+</html>
