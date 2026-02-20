@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin Amélioré - Wiki SGPI</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 80px auto 40px;
+            padding: 20px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            filter: brightness(1.1);
+        }
+        
+        .categories-list {
+            display: grid;
+            gap: 16px;
+        }
+        
+        .category-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .category-emoji {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--bg-hover);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .category-info {
+            flex: 1;
+        }
+        
+        .category-info h3 {
+            margin: 0 0 4px 0;
+            color: var(--text-primary);
+        }
+        
+        .category-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .category-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            margin-bottom: 24px;
+        }
+        
+        .modal-header h2 {
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+        }
+        
+        .modal-header p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .export-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <div class="admin-container">
+        
+        <h1 style="margin-bottom: 24px; color: var(--accent);">🛠️ Panel Admin Amélioré</h1>
+        
+        <div class="header-actions">
+            <a href="quick-add.html?admin_key=adminsgpi" class="btn btn-success">
+                ⚡ Ajout Rapide
+            </a>
+            <a href="admin.html?admin_key=adminsgpi" class="btn btn-primary">
+                📋 Panel Admin Original
+            </a>
+            <a href="index.html" class="btn btn-primary">
+                🏠 Retour au Wiki
+            </a>
+        </div>
+
+        <h2 style="margin-top: 40px; margin-bottom: 20px; color: var(--text-primary);">📂 Gestion des Catégories</h2>
+        
+        <div id="categories-list" class="categories-list">
+            <p style="text-align: center; color: var(--text-secondary);">Chargement...</p>
+        </div>
+
+        <!-- Section Export -->
+        <div class="export-section">
+            <h2 style="margin: 0 0 16px 0; color: var(--text-primary);">📄 Export Markdown</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Exportez une catégorie complète en format Markdown pour backup ou partage
+            </p>
+            
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <select id="export-category" style="flex: 1; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
+                    <option value="">-- Sélectionnez une catégorie --</option>
+                </select>
+                <button class="btn btn-primary" onclick="exportMarkdown()">
+                    📥 Télécharger .md
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal de duplication -->
+    <div id="duplicate-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 Dupliquer la catégorie</h2>
+                <p>Créez une copie de la structure (sections) sans les liens</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Emoji</label>
+                <input type="text" id="dup-emoji" placeholder="🎯" maxlength="2">
+            </div>
+            
+            <div class="form-group">
+                <label>Nom</label>
+                <input type="text" id="dup-name" placeholder="Nouvelle catégorie">
+            </div>
+            
+            <div class="form-group">
+                <label>Slug (URL)</label>
+                <input type="text" id="dup-slug" placeholder="nouvelle-categorie">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" style="flex: 1;" onclick="closeDuplicateModal()">
+                    Annuler
+                </button>
+                <button class="btn btn-success" style="flex: 1;" onclick="submitDuplicate()">
+                    ✅ Dupliquer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="toast.js"></script>
+    <script>
+        const API_URL = 'https://sgpi-backend.onrender.com';
+        const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || 'adminsgpi';
+        
+        let categories = [];
+        let currentDuplicateId = null;
+        
+        // ===================================
+        // CHARGEMENT DES CATÉGORIES
+        // ===================================
+        
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories`, {
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error);
+                
+                categories = data.categories;
+                
+                displayCategories();
+                populateExportSelect();
+                
+            } catch (err) {
+                Toast.error('Erreur de chargement');
+                console.error(err);
+            }
+        }
+        
+        function displayCategories() {
+            const list = document.getElementById('categories-list');
+            
+            if (categories.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucune catégorie</p>';
+                return;
+            }
+            
+            list.innerHTML = categories.map(cat => `
+                <div class="category-item">
+                    <div class="category-emoji">${cat.emoji}</div>
+                    <div class="category-info">
+                        <h3>${cat.name}</h3>
+                        <p>${cat.sectionsCount || 0} sous-catégories • ${cat.linksCount || 0} liens</p>
+                    </div>
+                    <div class="category-actions">
+                        <button class="btn-icon" onclick="openDuplicateModal('${cat._id}')" title="Dupliquer">
+                            📋
+                        </button>
+                        <a href="category.html?slug=${cat.slug}" class="btn-icon" title="Voir">
+                            👁️
+                        </a>
+                        <a href="admin.html?admin_key=adminsgpi#categories" class="btn-icon" title="Modifier">
+                            ✏️
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function populateExportSelect() {
+            const select = document.getElementById('export-category');
+            select.innerHTML = '<option value="">-- Sélectionnez une catégorie --</option>';
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.slug;
+                option.textContent = `${cat.emoji} ${cat.name}`;
+                select.appendChild(option);
+            });
+        }
+        
+        // ===================================
+        // DUPLICATION
+        // ===================================
+        
+        function openDuplicateModal(categoryId) {
+            const category = categories.find(c => c._id === categoryId);
+            
+            if (!category) return;
+            
+            currentDuplicateId = categoryId;
+            
+            // Pré-remplir avec des valeurs suggérées
+            document.getElementById('dup-emoji').value = category.emoji;
+            document.getElementById('dup-name').value = category.name + ' (Copie)';
+            document.getElementById('dup-slug').value = category.slug + '-copie';
+            
+            document.getElementById('duplicate-modal').classList.add('show');
+        }
+        
+        function closeDuplicateModal() {
+            document.getElementById('duplicate-modal').classList.remove('show');
+            currentDuplicateId = null;
+        }
+        
+        async function submitDuplicate() {
+            const emoji = document.getElementById('dup-emoji').value.trim();
+            const name = document.getElementById('dup-name').value.trim();
+            const slug = document.getElementById('dup-slug').value.trim();
+            
+            if (!emoji || !name || !slug) {
+                Toast.warning('Tous les champs sont requis');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories/${currentDuplicateId}/duplicate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ 
+                        newEmoji: emoji,
+                        newName: name,
+                        newSlug: slug
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error);
+                
+                Toast.success(data.message);
+                closeDuplicateModal();
+                loadCategories();
+                
+            } catch (err) {
+                Toast.error(`Erreur : ${err.message}`);
+            }
+        }
+        
+        // ===================================
+        // EXPORT MARKDOWN
+        // ===================================
+        
+        function exportMarkdown() {
+            const slug = document.getElementById('export-category').value;
+            
+            if (!slug) {
+                Toast.warning('Sélectionnez une catégorie à exporter');
+                return;
+            }
+            
+            const url = `${API_URL}/api/export/category/${slug}`;
+            
+            Toast.info('Téléchargement en cours...');
+            
+            // Ouvrir dans un nouvel onglet (le backend gère le download)
+            window.open(url, '_blank');
+        }
+        
+        // Fermer le modal en cliquant à l'extérieur
+        document.getElementById('duplicate-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDuplicateModal();
+            }
+        });
+        
+        // Charger au démarrage
+        loadCategories();
+    </script>
+
+</body>
+</html>

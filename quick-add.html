@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajout Rapide - Wiki SGPI</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+    <style>
+        .quick-add-container {
+            max-width: 1000px;
+            margin: 80px auto 40px;
+            padding: 20px;
+        }
+        
+        .quick-header {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid var(--accent);
+            margin-bottom: 30px;
+        }
+        
+        .quick-header h1 {
+            margin: 0 0 8px 0;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .quick-header p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+        
+        .form-section {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .links-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        
+        .links-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .format-help {
+            background: var(--bg-hover);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .format-help h4 {
+            margin: 0 0 8px 0;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+        
+        .format-help code {
+            background: var(--bg-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+        
+        .format-help pre {
+            background: var(--bg-primary);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 8px 0 0 0;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+        
+        .counter {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-hover);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        
+        .counter.active {
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <div class="quick-add-container">
+        
+        <div class="quick-header">
+            <h1>
+                <span>⚡</span>
+                Ajout Rapide de Liens
+            </h1>
+            <p>Ajoutez plusieurs liens en une seule fois • Gain de temps maximal</p>
+        </div>
+
+        <form id="quick-add-form">
+            
+            <!-- Sélection Catégorie/Section -->
+            <div class="form-section">
+                <h2 style="margin: 0 0 20px 0; color: var(--text-primary);">📂 Destination</h2>
+                
+                <div class="form-group">
+                    <label for="category-select">Catégorie</label>
+                    <select id="category-select" required>
+                        <option value="">Chargement...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="section-select">Sous-catégorie</label>
+                    <select id="section-select" required disabled>
+                        <option value="">Sélectionnez d'abord une catégorie</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Zone de saisie des liens -->
+            <div class="form-section">
+                <h2 style="margin: 0 0 12px 0; color: var(--text-primary);">📝 Liens à ajouter</h2>
+                
+                <textarea 
+                    id="links-input" 
+                    class="links-textarea" 
+                    placeholder="Collez vos liens ici..."
+                    required
+                ></textarea>
+                
+                <div class="counter" id="link-counter">
+                    0 liens détectés
+                </div>
+                
+                <div class="format-help">
+                    <h4>📋 Formats acceptés :</h4>
+                    
+                    <p><strong>Simple (un par ligne) :</strong></p>
+                    <pre>Nom du lien | URL</pre>
+                    
+                    <p style="margin-top: 12px;"><strong>Avec description :</strong></p>
+                    <pre>Nom du lien | URL | Description du lien</pre>
+                    
+                    <p style="margin-top: 12px;"><strong>Avec badge :</strong></p>
+                    <pre>Nom du lien | URL | Description | Badge</pre>
+                    
+                    <p style="margin-top: 16px; color: var(--text-secondary); font-size: 0.9rem;">
+                        💡 <strong>Astuce :</strong> Vous pouvez copier-coller directement depuis un tableau Excel/Google Sheets !
+                    </p>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='admin.html'">
+                    ← Retour
+                </button>
+                <button type="submit" class="btn btn-primary" id="submit-btn">
+                    ✅ Ajouter tous les liens
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <script src="toast.js"></script>
+    <script>
+        const API_URL = 'https://sgpi-backend.onrender.com'; // Change selon ton backend
+        const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || 'adminsgpi';
+        
+        let categories = [];
+        
+        // ===================================
+        // CHARGEMENT DES CATÉGORIES
+        // ===================================
+        
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/categories`, {
+                    headers: { 'x-admin-key': ADMIN_KEY }
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error);
+                
+                categories = data.categories;
+                
+                const select = document.getElementById('category-select');
+                select.innerHTML = '<option value="">-- Sélectionnez une catégorie --</option>';
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat._id;
+                    option.textContent = `${cat.emoji} ${cat.name}`;
+                    select.appendChild(option);
+                });
+                
+            } catch (err) {
+                Toast.error('Erreur de chargement des catégories');
+                console.error(err);
+            }
+        }
+        
+        // ===================================
+        // CHARGEMENT DES SECTIONS
+        // ===================================
+        
+        document.getElementById('category-select').addEventListener('change', function() {
+            const categoryId = this.value;
+            const sectionSelect = document.getElementById('section-select');
+            
+            if (!categoryId) {
+                sectionSelect.disabled = true;
+                sectionSelect.innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+                return;
+            }
+            
+            const category = categories.find(c => c._id === categoryId);
+            
+            if (!category || !category.sections || category.sections.length === 0) {
+                sectionSelect.disabled = true;
+                sectionSelect.innerHTML = '<option value="">Aucune sous-catégorie disponible</option>';
+                Toast.warning('Cette catégorie n\'a pas de sous-catégories. Créez-en une d\'abord !');
+                return;
+            }
+            
+            sectionSelect.disabled = false;
+            sectionSelect.innerHTML = '<option value="">-- Sélectionnez une sous-catégorie --</option>';
+            
+            category.sections.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.name;
+                sectionSelect.appendChild(option);
+            });
+        });
+        
+        // ===================================
+        // PARSING DES LIENS
+        // ===================================
+        
+        function parseLinks(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            const links = [];
+            
+            for (const line of lines) {
+                // Séparateur peut être | ou \t (tabulation pour Excel)
+                const parts = line.split(/[|\t]/).map(p => p.trim());
+                
+                if (parts.length >= 2) {
+                    const link = {
+                        name: parts[0],
+                        url: parts[1],
+                        description: parts[2] || '',
+                        badge: parts[3] || ''
+                    };
+                    
+                    // Validation basique de l'URL
+                    if (link.url.startsWith('http://') || link.url.startsWith('https://')) {
+                        links.push(link);
+                    }
+                }
+            }
+            
+            return links;
+        }
+        
+        // ===================================
+        // COMPTEUR DE LIENS
+        // ===================================
+        
+        document.getElementById('links-input').addEventListener('input', function() {
+            const links = parseLinks(this.value);
+            const counter = document.getElementById('link-counter');
+            
+            counter.textContent = `${links.length} lien${links.length > 1 ? 's' : ''} détecté${links.length > 1 ? 's' : ''}`;
+            
+            if (links.length > 0) {
+                counter.classList.add('active');
+            } else {
+                counter.classList.remove('active');
+            }
+        });
+        
+        // ===================================
+        // SOUMISSION DU FORMULAIRE
+        // ===================================
+        
+        document.getElementById('quick-add-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const categoryId = document.getElementById('category-select').value;
+            const sectionId = document.getElementById('section-select').value;
+            const linksText = document.getElementById('links-input').value;
+            
+            if (!categoryId || !sectionId) {
+                Toast.warning('Veuillez sélectionner une catégorie et une sous-catégorie');
+                return;
+            }
+            
+            const links = parseLinks(linksText);
+            
+            if (links.length === 0) {
+                Toast.error('Aucun lien valide détecté. Vérifiez le format !');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Ajout en cours...';
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/quick-add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-admin-key': ADMIN_KEY
+                    },
+                    body: JSON.stringify({ categoryId, sectionId, links })
+                });
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error);
+                
+                Toast.success(`✅ ${data.message} !`);
+                
+                // Réinitialiser le formulaire
+                document.getElementById('links-input').value = '';
+                document.getElementById('link-counter').textContent = '0 liens détectés';
+                document.getElementById('link-counter').classList.remove('active');
+                
+            } catch (err) {
+                Toast.error(`Erreur : ${err.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Ajouter tous les liens';
+            }
+        });
+        
+        // Charger les catégories au démarrage
+        loadCategories();
+    </script>
+
+</body>
+</html>
