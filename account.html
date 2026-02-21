@@ -113,6 +113,47 @@
         <p>© 2026 SGPI - Wiki à usage privé | Réservé aux membres Discord</p>
         <p>Dernière mise à jour : Février 2026</p>
     </footer>
+        <!-- Script pour charger les catégories dynamiquement -->
+    <script>
+        
+        async function loadCategories() {
+            try {
+                // Note: Cet endpoint ne nécessite PAS la clé admin pour lire
+                const res = await fetch(`${API_URL}/api/categories`);
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.error || 'Erreur chargement');
+                }
+                
+                const grid = document.getElementById('categories-grid');
+                const loading = document.getElementById('categories-loading');
+                
+                if (data.categories && data.categories.length > 0) {
+                    grid.innerHTML = data.categories.map(cat => `
+                        <a href="category.html?slug=${cat.slug}" class="category-card">
+                            <div class="icon">${cat.emoji}</div>
+                            <h3>${cat.name}</h3>
+                            <p class="count">${cat.sectionsCount || 0} sections • ${cat.linksCount || 0} liens</p>
+                        </a>
+                    `).join('');
+                    
+                    grid.style.display = 'grid';
+                    loading.style.display = 'none';
+                } else {
+                    loading.innerHTML = '<p>Aucune catégorie disponible. <a href="admin.html?admin_key=adminsgpi">Créer une catégorie</a></p>';
+                }
+                
+            } catch (err) {
+                console.error('Erreur chargement catégories:', err);
+                document.getElementById('categories-loading').innerHTML = 
+                    '<p style="color: #ef4444;">Erreur de chargement des catégories</p>';
+            }
+        }
+        
+        // Charger au démarrage
+        loadCategories();
+    </script>
     <script>
         // Code spécifique à la page account
         async function loadAccountInfo() {
