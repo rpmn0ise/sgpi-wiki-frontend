@@ -411,6 +411,7 @@
         }
     </style>
 </head>
+        <script src="script.js"></script>
 <body class="dark-mode">
 
     <header>
@@ -631,7 +632,6 @@
     </div>
 
     <script>
-        const API_URL = 'https://backend-wiki-zaxy.onrender.com';
         const ADMIN_KEY = new URLSearchParams(window.location.search).get('admin_key') || 'adminsgpi';
         
         let currentCategories = [];
@@ -1282,7 +1282,5 @@
             loadCategories();
         }
     </script>
-    
-    <script src="script.js"></script>
 </body>
 </html>
