@@ -2,8 +2,6 @@
 // SIDEBAR DYNAMIQUE
 // ===================================
 
-const API_URL = 'https://sgpi-backend.onrender.com'; // À adapter selon ton backend
-
 async function loadDynamicSidebar() {
     const sidebar = document.querySelector('.nav-categories ul');
     
