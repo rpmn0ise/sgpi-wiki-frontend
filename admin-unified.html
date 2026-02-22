@@ -891,7 +891,116 @@
         </main>
     </div>
 
-    <!-- Modals go here (I'll continue in next file due to length) -->
+    <!-- ========================================= -->
+    <!-- MODALS -->
+    <!-- ========================================= -->
+    
+    <!-- Modal: Catégorie -->
+    <div class="modal" id="modal-category">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-category-title">Nouvelle Catégorie</h2>
+                <button class="modal-close" onclick="closeModal('modal-category')">×</button>
+            </div>
+            
+            <form id="form-category" onsubmit="handleCategorySubmit(event)">
+                <input type="hidden" id="category-id" />
+                
+                <div class="form-group">
+                    <label>Emoji</label>
+                    <input type="text" id="category-emoji" placeholder="🔒" maxlength="2" required />
+                </div>
+                
+                <div class="form-group">
+                    <label>Nom de la catégorie</label>
+                    <input type="text" id="category-name" placeholder="Ex: Confidentialité & Sécurité" required />
+                </div>
+                
+                <div class="form-group">
+                    <label>Slug (URL)</label>
+                    <input type="text" id="category-slug" placeholder="Ex: confidentialite-securite" required />
+                    <small style="color: var(--text-secondary);">Utilisé dans l'URL (sans espaces ni accents)</small>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-category')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Section -->
+    <div class="modal" id="modal-section">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-section-title">Nouvelle Section</h2>
+                <button class="modal-close" onclick="closeModal('modal-section')">×</button>
+            </div>
+            
+            <form id="form-section" onsubmit="handleSectionSubmit(event)">
+                <input type="hidden" id="section-id" />
+                <input type="hidden" id="section-category-id" />
+                
+                <div class="form-group">
+                    <label>Nom de la section</label>
+                    <input type="text" id="section-name" placeholder="Ex: VPN & Proxies" required />
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-section')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Lien -->
+    <div class="modal" id="modal-link">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-link-title">Nouveau Lien</h2>
+                <button class="modal-close" onclick="closeModal('modal-link')">×</button>
+            </div>
+            
+            <form id="form-link" onsubmit="handleLinkSubmit(event)">
+                <input type="hidden" id="link-id" />
+                <input type="hidden" id="link-category-id" />
+                <input type="hidden" id="link-section-id" />
+                
+                <div class="form-group">
+                    <label>Nom du lien</label>
+                    <input type="text" id="link-name" placeholder="Ex: NordVPN" required />
+                </div>
+                
+                <div class="form-group">
+                    <label>URL</label>
+                    <input type="url" id="link-url" placeholder="https://..." required />
+                </div>
+                
+                <div class="form-group">
+                    <label>Description (optionnel)</label>
+                    <textarea id="link-description" placeholder="Description courte du lien" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Badge (optionnel)</label>
+                    <div class="badge-selector">
+                        <div class="badge-option" data-badge="" onclick="selectBadge('')">Aucun</div>
+                        <div class="badge-option" data-badge="⭐" onclick="selectBadge('⭐')">⭐ Recommandé</div>
+                        <div class="badge-option" data-badge="🔥" onclick="selectBadge('🔥')">🔥 Essentiel</div>
+                        <div class="badge-option" data-badge="🆕" onclick="selectBadge('🆕')">🆕 Nouveau</div>
+                    </div>
+                    <input type="text" id="link-badge" placeholder="Ou badge personnalisé" style="margin-top: 12px;" />
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-link')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <script src="toast.js"></script>
     <script src="admin-unified.js"></script>
