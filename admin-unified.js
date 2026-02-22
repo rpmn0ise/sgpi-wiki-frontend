@@ -3,6 +3,8 @@
 // Wiki SGPI v2.0
 // ===================================
 
+const API_URL = 'https://backend-wiki-zaxy.onrender.com';
+
 // État global
 let currentAdmin = null;
 let currentCategories = [];
