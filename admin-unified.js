@@ -353,19 +353,52 @@ function renderCategories() {
         return;
     }
     
-    container.innerHTML = currentCategories.map(cat => `
-        <div class="list-item">
-            <div style="font-size: 2rem;">${cat.emoji}</div>
-            <div class="list-item-content">
-                <div class="list-item-title">${cat.name}</div>
-                <div class="list-item-meta">${cat.sectionsCount || 0} sections • ${cat.linksCount || 0} liens</div>
-            </div>
-            <div class="list-item-actions">
-                <button class="btn btn-secondary" onclick="editCategory('${cat._id}')">✏️</button>
-                <button class="btn btn-danger" onclick="deleteCategory('${cat._id}', '${escapeHtml(cat.name)}')">🗑️</button>
-            </div>
-        </div>
-    `).join('');
+    container.innerHTML = '';
+    
+    currentCategories.forEach(cat => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        
+        const emoji = document.createElement('div');
+        emoji.style.fontSize = '2rem';
+        emoji.textContent = cat.emoji;
+        
+        const content = document.createElement('div');
+        content.className = 'list-item-content';
+        
+        const title = document.createElement('div');
+        title.className = 'list-item-title';
+        title.textContent = cat.name;
+        
+        const meta = document.createElement('div');
+        meta.className = 'list-item-meta';
+        meta.textContent = `${cat.sectionsCount || 0} sections • ${cat.linksCount || 0} liens`;
+        
+        content.appendChild(title);
+        content.appendChild(meta);
+        
+        const actions = document.createElement('div');
+        actions.className = 'list-item-actions';
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-secondary';
+        editBtn.textContent = '✏️';
+        editBtn.onclick = () => editCategory(cat._id);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-danger';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = () => deleteCategory(cat._id, cat.name);
+        
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        
+        item.appendChild(emoji);
+        item.appendChild(content);
+        item.appendChild(actions);
+        
+        container.appendChild(item);
+    });
 }
 
 function updateCategorySelects() {
@@ -394,6 +427,26 @@ function updateCategorySelects() {
 
 function editCategory(id) {
     showToast('Fonction en cours de développement', 'info');
+}
+
+function openCategoryModal() {
+    showToast('Création de catégorie - Utilise le panel admin.html pour le moment', 'info');
+    // Rediriger vers admin.html
+    window.location.href = 'admin.html?admin_key=adminsgpi';
+}
+
+function openSectionModal() {
+    showToast('Création de section - Utilise le panel admin.html pour le moment', 'info');
+    window.location.href = 'admin.html?admin_key=adminsgpi#sections';
+}
+
+function openLinkModal() {
+    showToast('Création de lien - Utilise le panel admin.html pour le moment', 'info');
+    window.location.href = 'admin.html?admin_key=adminsgpi#links';
+}
+
+function openAdminModal() {
+    showToast('Gestion des admins à venir', 'info');
 }
 
 async function deleteCategory(id, name) {
@@ -872,5 +925,9 @@ window.exportMarkdown = exportMarkdown;
 window.exportFullBackup = exportFullBackup;
 window.validateLinks = validateLinks;
 window.loadLogs = loadLogs;
+window.openCategoryModal = openCategoryModal;
+window.openSectionModal = openSectionModal;
+window.openLinkModal = openLinkModal;
+window.openAdminModal = openAdminModal;
 
 console.log('✅ Panel Admin Unifié chargé');
