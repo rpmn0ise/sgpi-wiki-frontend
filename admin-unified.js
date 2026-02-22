@@ -426,27 +426,480 @@ function updateCategorySelects() {
 }
 
 function editCategory(id) {
-    showToast('Fonction en cours de développement', 'info');
+    const category = currentCategories.find(c => c._id === id);
+    if (!category) return;
+    
+    document.getElementById('modal-category-title').textContent = 'Modifier la Catégorie';
+    document.getElementById('category-id').value = category._id;
+    document.getElementById('category-emoji').value = category.emoji;
+    document.getElementById('category-name').value = category.name;
+    document.getElementById('category-slug').value = category.slug;
+    
+    openModal('modal-category');
 }
 
 function openCategoryModal() {
-    showToast('Création de catégorie - Utilise le panel admin.html pour le moment', 'info');
-    // Rediriger vers admin.html
-    window.location.href = 'admin.html?admin_key=adminsgpi';
+    document.getElementById('modal-category-title').textContent = 'Nouvelle Catégorie';
+    document.getElementById('form-category').reset();
+    document.getElementById('category-id').value = '';
+    
+    openModal('modal-category');
 }
 
 function openSectionModal() {
-    showToast('Création de section - Utilise le panel admin.html pour le moment', 'info');
-    window.location.href = 'admin.html?admin_key=adminsgpi#sections';
+    const categoryId = document.getElementById('section-category-select')?.value;
+    
+    if (!categoryId) {
+        showToast('Sélectionnez d\'abord une catégorie', 'warning');
+        return;
+    }
+    
+    document.getElementById('modal-section-title').textContent = 'Nouvelle Section';
+    document.getElementById('form-section').reset();
+    document.getElementById('section-id').value = '';
+    document.getElementById('section-category-id').value = categoryId;
+    
+    openModal('modal-section');
 }
 
 function openLinkModal() {
-    showToast('Création de lien - Utilise le panel admin.html pour le moment', 'info');
-    window.location.href = 'admin.html?admin_key=adminsgpi#links';
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const sectionId = document.getElementById('link-section-select')?.value;
+    
+    if (!categoryId || !sectionId) {
+        showToast('Sélectionnez une catégorie et une section', 'warning');
+        return;
+    }
+    
+    document.getElementById('modal-link-title').textContent = 'Nouveau Lien';
+    document.getElementById('form-link').reset();
+    document.getElementById('link-id').value = '';
+    document.getElementById('link-category-id').value = categoryId;
+    document.getElementById('link-section-id').value = sectionId;
+    
+    // Reset badge selection
+    document.querySelectorAll('.badge-option').forEach(opt => opt.classList.remove('selected'));
+    document.querySelector('[data-badge=""]')?.classList.add('selected');
+    
+    openModal('modal-link');
 }
 
 function openAdminModal() {
     showToast('Gestion des admins à venir', 'info');
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
+}
+
+// Fonction pour sélectionner un badge
+function selectBadge(badge) {
+    document.querySelectorAll('.badge-option').forEach(opt => opt.classList.remove('selected'));
+    const selected = document.querySelector(`[data-badge="${badge}"]`);
+    if (selected) selected.classList.add('selected');
+    
+    const badgeInput = document.getElementById('link-badge');
+    if (badgeInput) badgeInput.value = badge;
+}
+
+// ===================================
+// HANDLERS DE FORMULAIRES
+// ===================================
+
+async function handleCategorySubmit(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('category-id').value;
+    const emoji = document.getElementById('category-emoji').value;
+    const name = document.getElementById('category-name').value;
+    const slug = document.getElementById('category-slug').value;
+    
+    try {
+        const url = id 
+            ? `${API_URL}/api/admin/categories/${id}`
+            : `${API_URL}/api/admin/categories`;
+        const method = id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({ name, emoji, slug })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast(id ? 'Catégorie modifiée !' : 'Catégorie créée !', 'success');
+        closeModal('modal-category');
+        await loadCategories();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+async function handleSectionSubmit(event) {
+    event.preventDefault();
+    
+    const categoryId = document.getElementById('section-category-id').value;
+    const sectionId = document.getElementById('section-id').value;
+    const name = document.getElementById('section-name').value;
+    
+    try {
+        const url = sectionId
+            ? `${API_URL}/api/admin/categories/${categoryId}/sections/${sectionId}`
+            : `${API_URL}/api/admin/categories/${categoryId}/sections`;
+        const method = sectionId ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({ name })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast(sectionId ? 'Section modifiée !' : 'Section créée !', 'success');
+        closeModal('modal-section');
+        await loadCategories();
+        
+        // Recharger les sections si on est dans l'onglet sections
+        if (currentTab === 'sections') {
+            await loadSectionsForCategory();
+        }
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+async function handleLinkSubmit(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('link-id').value;
+    const categoryId = document.getElementById('link-category-id').value;
+    const sectionId = document.getElementById('link-section-id').value;
+    const name = document.getElementById('link-name').value;
+    const url = document.getElementById('link-url').value;
+    const description = document.getElementById('link-description').value;
+    const badge = document.getElementById('link-badge').value;
+    
+    try {
+        const apiUrl = id
+            ? `${API_URL}/api/admin/links/${id}`
+            : `${API_URL}/api/admin/links`;
+        const method = id ? 'PUT' : 'POST';
+        
+        const res = await fetch(apiUrl, {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({ categoryId, sectionId, name, url, description, badge })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast(id ? 'Lien modifié !' : 'Lien créé !', 'success');
+        closeModal('modal-link');
+        
+        // Recharger les liens si on est dans l'onglet liens
+        if (currentTab === 'links') {
+            await loadLinksForSection();
+        }
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+// ===================================
+// GESTION SECTIONS
+// ===================================
+
+async function loadSectionsForCategory() {
+    const categoryId = document.getElementById('section-category-select')?.value;
+    const addBtn = document.getElementById('add-section-btn');
+    const container = document.getElementById('sections-list');
+    
+    if (!container) return;
+    
+    if (!categoryId) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📂</div><p>Sélectionnez une catégorie</p></div>';
+        if (addBtn) addBtn.disabled = true;
+        return;
+    }
+    
+    if (addBtn) addBtn.disabled = false;
+    
+    const category = currentCategories.find(c => c._id === categoryId);
+    if (!category) return;
+    
+    currentSections = category.sections || [];
+    renderSections();
+}
+
+function renderSections() {
+    const container = document.getElementById('sections-list');
+    if (!container) return;
+    
+    if (currentSections.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📂</div><p>Aucune section</p></div>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    currentSections.forEach(section => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        
+        const content = document.createElement('div');
+        content.className = 'list-item-content';
+        
+        const title = document.createElement('div');
+        title.className = 'list-item-title';
+        title.textContent = section.name;
+        
+        content.appendChild(title);
+        
+        const actions = document.createElement('div');
+        actions.className = 'list-item-actions';
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-secondary';
+        editBtn.textContent = '✏️';
+        editBtn.onclick = () => editSection(section.id);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-danger';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = () => deleteSection(section.id, section.name);
+        
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        
+        item.appendChild(content);
+        item.appendChild(actions);
+        
+        container.appendChild(item);
+    });
+}
+
+function editSection(id) {
+    const categoryId = document.getElementById('section-category-select')?.value;
+    const section = currentSections.find(s => s.id === id);
+    
+    if (!section || !categoryId) return;
+    
+    document.getElementById('modal-section-title').textContent = 'Modifier la Section';
+    document.getElementById('section-id').value = section.id;
+    document.getElementById('section-category-id').value = categoryId;
+    document.getElementById('section-name').value = section.name;
+    
+    openModal('modal-section');
+}
+
+async function deleteSection(id, name) {
+    if (!confirm(`Supprimer "${name}" ?\n\nTous les liens de cette section seront supprimés.`)) return;
+    
+    const categoryId = document.getElementById('section-category-select')?.value;
+    if (!categoryId) return;
+    
+    try {
+        const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}/sections/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-key': 'adminsgpi' }
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast('Section supprimée', 'success');
+        await loadCategories();
+        await loadSectionsForCategory();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+// ===================================
+// GESTION LIENS
+// ===================================
+
+function loadSectionsForLinks() {
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const sectionSelect = document.getElementById('link-section-select');
+    const addBtn = document.getElementById('add-link-btn');
+    
+    if (!sectionSelect) return;
+    
+    if (!categoryId) {
+        sectionSelect.disabled = true;
+        sectionSelect.innerHTML = '<option value="">-- Choisir une section --</option>';
+        if (addBtn) addBtn.disabled = true;
+        document.getElementById('links-list').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Sélectionnez une catégorie</p></div>';
+        return;
+    }
+    
+    const category = currentCategories.find(c => c._id === categoryId);
+    if (!category) return;
+    
+    const sections = category.sections || [];
+    
+    sectionSelect.disabled = false;
+    sectionSelect.innerHTML = '<option value="">-- Choisir une section --</option>' +
+        sections.map(sec => `<option value="${sec.id}">${sec.name}</option>`).join('');
+}
+
+async function loadLinksForSection() {
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const sectionId = document.getElementById('link-section-select')?.value;
+    const addBtn = document.getElementById('add-link-btn');
+    const container = document.getElementById('links-list');
+    
+    if (!container) return;
+    
+    if (!categoryId || !sectionId) {
+        if (addBtn) addBtn.disabled = true;
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Sélectionnez une section</p></div>';
+        return;
+    }
+    
+    if (addBtn) addBtn.disabled = false;
+    
+    try {
+        const res = await fetch(`${API_URL}/api/admin/links?categoryId=${categoryId}&sectionId=${sectionId}`, {
+            headers: { 'x-admin-key': 'adminsgpi' }
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        currentLinks = data.links;
+        renderLinks();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+function renderLinks() {
+    const container = document.getElementById('links-list');
+    if (!container) return;
+    
+    if (currentLinks.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Aucun lien</p></div>';
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    currentLinks.forEach(link => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        
+        const content = document.createElement('div');
+        content.className = 'list-item-content';
+        
+        const title = document.createElement('div');
+        title.className = 'list-item-title';
+        title.textContent = (link.badge ? link.badge + ' ' : '') + link.name;
+        
+        const url = document.createElement('div');
+        url.className = 'list-item-meta';
+        url.textContent = link.url;
+        
+        content.appendChild(title);
+        content.appendChild(url);
+        
+        if (link.description) {
+            const desc = document.createElement('div');
+            desc.className = 'list-item-meta';
+            desc.textContent = link.description;
+            content.appendChild(desc);
+        }
+        
+        const actions = document.createElement('div');
+        actions.className = 'list-item-actions';
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-secondary';
+        editBtn.textContent = '✏️';
+        editBtn.onclick = () => editLink(link._id);
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-danger';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = () => deleteLink(link._id, link.name);
+        
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        
+        item.appendChild(content);
+        item.appendChild(actions);
+        
+        container.appendChild(item);
+    });
+}
+
+function editLink(id) {
+    const link = currentLinks.find(l => l._id === id);
+    if (!link) return;
+    
+    document.getElementById('modal-link-title').textContent = 'Modifier le Lien';
+    document.getElementById('link-id').value = link._id;
+    document.getElementById('link-category-id').value = link.categoryId;
+    document.getElementById('link-section-id').value = link.sectionId;
+    document.getElementById('link-name').value = link.name;
+    document.getElementById('link-url').value = link.url;
+    document.getElementById('link-description').value = link.description || '';
+    document.getElementById('link-badge').value = link.badge || '';
+    
+    // Sélectionner le badge
+    if (link.badge) {
+        selectBadge(link.badge);
+    } else {
+        selectBadge('');
+    }
+    
+    openModal('modal-link');
+}
+
+async function deleteLink(id, name) {
+    if (!confirm(`Supprimer "${name}" ?`)) return;
+    
+    try {
+        const res = await fetch(`${API_URL}/api/admin/links/${id}`, {
+            method: 'DELETE',
+            headers: { 'x-admin-key': 'adminsgpi' }
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast('Lien supprimé', 'success');
+        await loadLinksForSection();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
 }
 
 async function deleteCategory(id, name) {
@@ -920,6 +1373,10 @@ function escapeHtml(text) {
 window.logout = logout;
 window.editCategory = editCategory;
 window.deleteCategory = deleteCategory;
+window.editSection = editSection;
+window.deleteSection = deleteSection;
+window.editLink = editLink;
+window.deleteLink = deleteLink;
 window.deleteAdmin = deleteAdmin;
 window.exportMarkdown = exportMarkdown;
 window.exportFullBackup = exportFullBackup;
@@ -929,5 +1386,14 @@ window.openCategoryModal = openCategoryModal;
 window.openSectionModal = openSectionModal;
 window.openLinkModal = openLinkModal;
 window.openAdminModal = openAdminModal;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.selectBadge = selectBadge;
+window.handleCategorySubmit = handleCategorySubmit;
+window.handleSectionSubmit = handleSectionSubmit;
+window.handleLinkSubmit = handleLinkSubmit;
+window.loadSectionsForCategory = loadSectionsForCategory;
+window.loadSectionsForLinks = loadSectionsForLinks;
+window.loadLinksForSection = loadLinksForSection;
 
 console.log('✅ Panel Admin Unifié chargé');
