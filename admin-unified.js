@@ -895,7 +895,9 @@ async function deleteLink(id, name) {
         if (!res.ok) throw new Error(data.error);
         
         showToast('Lien supprimé', 'success');
-        await loadLinksForSection();
+        
+        // Recharger les liens de la sous-sous-catégorie actuelle (structure 3 niveaux)
+        await loadLinksForSubSubCategory();
         
     } catch (err) {
         showToast('Erreur: ' + err.message, 'error');
