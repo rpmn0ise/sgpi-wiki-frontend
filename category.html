@@ -125,45 +125,27 @@
                 document.getElementById('page-title').textContent = `${category.emoji} ${category.name} - Wiki SGPI`;
                 document.getElementById('category-title').innerHTML = `${category.emoji} ${category.name}`;
                 
-                // Générer les sections
+                // Support structure 3 niveaux OU ancienne structure
+                const subCategories = category.subCategories || category.sections || [];
+                
+                // Générer la sidebar TOC avec accordéons
+                generateSidebarTOC(subCategories);
+                
+                // Générer le contenu principal
                 const sectionsContainer = document.getElementById('sections-container');
                 
-                if (!category.sections || category.sections.length === 0) {
-                    sectionsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">Aucune section dans cette catégorie. <a href="admin.html?admin_key=adminsgpi">Ajouter du contenu</a></p>';
+                if (subCategories.length === 0) {
+                    sectionsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">Aucun contenu dans cette catégorie. <a href="admin-unified.html">Ajouter du contenu</a></p>';
                 } else {
-                    sectionsContainer.innerHTML = category.sections.map(section => {
-                        const links = section.links || [];
-                        
-                        return `
-                            <section id="section-${section.id}">
-                                <h3>${section.name}</h3>
-                                ${links.length === 0 ? 
-                                    '<p style="color: var(--text-secondary); font-style: italic;">Aucun lien dans cette section.</p>' :
-                                    `<ul class="resource-list">
-                                        ${links.map(link => `
-                                            <li>
-                                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.name}</a>
-                                                ${link.badge ? ` ${link.badge}` : ''}
-                                                ${link.description ? ` - ${link.description}` : ''}
-                                            </li>
-                                        `).join('')}
-                                    </ul>`
-                                }
-                            </section>
-                        `;
-                    }).join('');
-                    
-                    // Générer la table des matières
-                    const tocList = document.getElementById('toc-list');
-                    tocList.innerHTML = category.sections.map(section => 
-                        `<li><a href="#section-${section.id}">${section.name}</a></li>`
-                    ).join('');
-                    document.getElementById('toc').style.display = 'block';
+                    sectionsContainer.innerHTML = renderSubCategories(subCategories);
                 }
                 
                 // Afficher le contenu
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
+                
+                // Init accordéons
+                initAccordions();
                 
             } catch (err) {
                 console.error('Erreur chargement catégorie:', err);
@@ -171,6 +153,241 @@
                 document.getElementById('error').style.display = 'block';
             }
         }
+        
+        // Générer la sidebar TOC avec accordéons
+        function generateSidebarTOC(subCategories) {
+            const tocList = document.getElementById('toc-list');
+            
+            if (subCategories.length === 0) {
+                document.getElementById('toc').style.display = 'none';
+                return;
+            }
+            
+            let html = '';
+            
+            subCategories.forEach(subCat => {
+                const subSubCats = subCat.subSubCategories || [];
+                const hasSubSub = subSubCats.length > 0;
+                
+                // Compter les liens
+                let totalLinks = 0;
+                if (hasSubSub) {
+                    subSubCats.forEach(subSubCat => {
+                        const links = subSubCat.links || [];
+                        totalLinks += links.length;
+                    });
+                } else {
+                    // Ancienne structure (sections avec links directs)
+                    const links = subCat.links || [];
+                    totalLinks = links.length;
+                }
+                
+                html += `
+                    <li class="toc-subcat ${hasSubSub ? 'has-children' : ''}">
+                        <div class="toc-subcat-header" onclick="toggleTocSubCat('${subCat.id}')">
+                            <span class="toc-arrow">${hasSubSub ? '▶' : '•'}</span>
+                            <a href="#subcat-${subCat.id}">${subCat.name}</a>
+                            <span class="toc-count">${totalLinks}</span>
+                        </div>
+                        ${hasSubSub ? `
+                            <ul class="toc-subsubcat-list" id="toc-subsubcat-${subCat.id}" style="display: none;">
+                                ${subSubCats.map(subSubCat => {
+                                    const links = subSubCat.links || [];
+                                    return `
+                                        <li class="toc-subsubcat">
+                                            <a href="#subsubcat-${subSubCat.id}">
+                                                ${subSubCat.name}
+                                                <span class="toc-count">${links.length}</span>
+                                            </a>
+                                        </li>
+                                    `;
+                                }).join('')}
+                            </ul>
+                        ` : ''}
+                    </li>
+                `;
+            });
+            
+            tocList.innerHTML = html;
+            document.getElementById('toc').style.display = 'block';
+        }
+        
+        // Toggle accordéon sidebar
+        function toggleTocSubCat(id) {
+            const list = document.getElementById('toc-subsubcat-' + id);
+            const arrow = event.currentTarget.querySelector('.toc-arrow');
+            
+            if (list) {
+                const isVisible = list.style.display !== 'none';
+                list.style.display = isVisible ? 'none' : 'block';
+                arrow.textContent = isVisible ? '▶' : '▼';
+            }
+        }
+        
+        // Rendre les sous-catégories (3 niveaux)
+        function renderSubCategories(subCategories) {
+            return subCategories.map(subCat => {
+                const subSubCats = subCat.subSubCategories || [];
+                
+                if (subSubCats.length > 0) {
+                    // Structure 3 niveaux
+                    return `
+                        <section id="subcat-${subCat.id}" class="subcategory-section">
+                            <h3 class="subcategory-title">${subCat.name}</h3>
+                            ${renderSubSubCategories(subSubCats)}
+                        </section>
+                    `;
+                } else {
+                    // Ancienne structure (sections avec liens directs)
+                    const links = subCat.links || [];
+                    return `
+                        <section id="subcat-${subCat.id}" class="subcategory-section">
+                            <h3 class="subcategory-title">${subCat.name}</h3>
+                            ${links.length === 0 ? 
+                                '<p style="color: var(--text-secondary); font-style: italic;">Aucun lien.</p>' :
+                                `<ul class="resource-list">
+                                    ${links.map(link => renderLink(link)).join('')}
+                                </ul>`
+                            }
+                        </section>
+                    `;
+                }
+            }).join('');
+        }
+        
+        // Rendre les sous-sous-catégories
+        function renderSubSubCategories(subSubCats) {
+            return subSubCats.map(subSubCat => {
+                const links = subSubCat.links || [];
+                
+                return `
+                    <div id="subsubcat-${subSubCat.id}" class="subsubcategory-section">
+                        <h4 class="subsubcategory-title">${subSubCat.name}</h4>
+                        ${links.length === 0 ? 
+                            '<p style="color: var(--text-secondary); font-style: italic; margin-left: 20px;">Aucun lien.</p>' :
+                            `<ul class="resource-list">
+                                ${links.map(link => renderLink(link)).join('')}
+                            </ul>`
+                        }
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Rendre un lien
+        function renderLink(link) {
+            return `
+                <li>
+                    <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.name}</a>
+                    ${link.badge ? ` <span class="badge">${link.badge}</span>` : ''}
+                    ${link.description ? ` <span class="link-description">- ${link.description}</span>` : ''}
+                </li>
+            `;
+        }
+        
+        // Init accordéons
+        function initAccordions() {
+            // Ajouter des styles pour les accordéons
+            if (!document.getElementById('accordion-styles')) {
+                const style = document.createElement('style');
+                style.id = 'accordion-styles';
+                style.textContent = `
+                    .toc-subcat {
+                        margin: 0;
+                        padding: 0;
+                    }
+                    
+                    .toc-subcat-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        border-radius: 6px;
+                        transition: background 0.2s;
+                    }
+                    
+                    .toc-subcat-header:hover {
+                        background: var(--bg-hover);
+                    }
+                    
+                    .toc-arrow {
+                        font-size: 0.8rem;
+                        width: 16px;
+                        transition: transform 0.2s;
+                    }
+                    
+                    .toc-count {
+                        margin-left: auto;
+                        font-size: 0.85rem;
+                        color: var(--text-secondary);
+                        background: var(--bg-hover);
+                        padding: 2px 8px;
+                        border-radius: 12px;
+                    }
+                    
+                    .toc-subsubcat-list {
+                        list-style: none;
+                        padding-left: 24px;
+                        margin: 0;
+                    }
+                    
+                    .toc-subsubcat {
+                        margin: 0;
+                    }
+                    
+                    .toc-subsubcat a {
+                        display: flex;
+                        align-items: center;
+                        padding: 6px 12px;
+                        border-radius: 6px;
+                        transition: background 0.2s;
+                    }
+                    
+                    .toc-subsubcat a:hover {
+                        background: var(--bg-hover);
+                    }
+                    
+                    .subcategory-section {
+                        margin-bottom: 48px;
+                    }
+                    
+                    .subcategory-title {
+                        color: var(--accent);
+                        border-bottom: 2px solid var(--accent);
+                        padding-bottom: 12px;
+                        margin-bottom: 24px;
+                    }
+                    
+                    .subsubcategory-section {
+                        margin-bottom: 32px;
+                        margin-left: 20px;
+                    }
+                    
+                    .subsubcategory-title {
+                        font-size: 1.1rem;
+                        color: var(--text-primary);
+                        margin-bottom: 12px;
+                        padding-left: 12px;
+                        border-left: 3px solid var(--accent);
+                    }
+                    
+                    .badge {
+                        font-size: 0.9rem;
+                        margin-left: 4px;
+                    }
+                    
+                    .link-description {
+                        color: var(--text-secondary);
+                        font-size: 0.9rem;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // Exposer la fonction toggle globalement
+        window.toggleTocSubCat = toggleTocSubCat;
         
         loadSidebarCategories();
     </script>
