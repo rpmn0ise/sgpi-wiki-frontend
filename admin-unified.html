@@ -538,6 +538,213 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* =====================================================
+   STYLES - Interface de gestion structure 3 niveaux
+   À ajouter dans admin-unified.html dans la balise <style>
+   ===================================================== */
+
+/* Container principal de l'arbre */
+.structure-tree {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    background: var(--bg-secondary);
+}
+
+/* Node de l'arbre */
+.tree-node {
+    margin: 12px 0;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.tree-node:hover {
+    background: var(--bg-hover);
+}
+
+/* Niveau 1 : Sous-catégories */
+.tree-node.level-1 {
+    border-left: 4px solid var(--accent);
+    background: var(--bg-primary);
+    padding: 4px;
+}
+
+.tree-node.level-1:hover {
+    border-left-width: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Niveau 2 : Sous-sous-catégories */
+.tree-node.level-2 {
+    border-left: 3px solid var(--text-secondary);
+    background: var(--bg-hover);
+    margin-left: 32px;
+    padding: 4px;
+}
+
+.tree-node.level-2:hover {
+    border-left-color: var(--accent);
+}
+
+/* Header du node */
+.tree-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    min-height: 50px;
+}
+
+/* Icône */
+.tree-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* Nom */
+.tree-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.level-2 .tree-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Compteur de liens */
+.tree-count {
+    padding: 4px 12px;
+    background: var(--bg-hover);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    border: 1px solid var(--border);
+}
+
+.level-1 .tree-count {
+    background: var(--accent);
+    color: white;
+    border: none;
+}
+
+/* Actions */
+.tree-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Boutons petits */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    min-width: auto;
+    height: 32px;
+}
+
+.btn-sm:hover {
+    transform: translateY(-1px);
+}
+
+/* Children container */
+.tree-children {
+    margin-top: 8px;
+    padding-left: 8px;
+}
+
+/* Empty state personnalisé pour structure */
+#structure-container .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+#structure-container .empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+#structure-container .empty-state p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 8px 0;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.tree-node {
+    animation: slideIn 0.3s ease-out;
+}
+
+.tree-node.level-2 {
+    animation-delay: 0.1s;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tree-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .tree-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .tree-node.level-2 {
+        margin-left: 16px;
+    }
+    
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .tree-name {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mode sombre spécifique */
+.dark-mode .tree-node.level-1 {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.dark-mode .tree-node.level-2 {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .tree-node:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Indicateur de drag (pour futur drag & drop) */
+.tree-node.dragging {
+    opacity: 0.5;
+    cursor: move;
+}
+
+.tree-node.drag-over {
+    border-top: 3px solid var(--accent);
+}
+
     </style>
 </head>
 <body class="dark-mode">
