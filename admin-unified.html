@@ -720,20 +720,24 @@
                     </div>
                 </div>
                 
-                <!-- Tab: Sections -->
+                <!-- Tab: Structure -->
                 <div class="admin-tab" id="tab-sections">
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">📂 Gestion des Sections</h2>
+                            <h2 class="card-title">🏗️ Gestion de la Structure</h2>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">
+                                Gérez vos catégories → sous-catégories → sous-sous-catégories
+                            </p>
                         </div>
+                        
                         <div class="form-group">
-                            <label>Sélectionner une catégorie</label>
-                            <select id="section-category-select" onchange="loadSectionsForCategory()">
+                            <label>Catégorie</label>
+                            <select id="structure-category-select" onchange="loadStructure()">
                                 <option value="">-- Choisir une catégorie --</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary" onclick="openSectionModal()" id="add-section-btn" disabled>➕ Nouvelle Section</button>
-                        <div id="sections-list" style="margin-top: 20px;"></div>
+                        
+                        <div id="structure-container" style="margin-top: 20px;"></div>
                     </div>
                 </div>
                 
@@ -961,6 +965,57 @@
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('modal-section')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Sous-catégorie -->
+    <div class="modal" id="modal-subcategory">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-subcategory-title">Nouvelle Sous-catégorie</h2>
+                <button class="modal-close" onclick="closeModal('modal-subcategory')">×</button>
+            </div>
+            
+            <form id="form-subcategory" onsubmit="handleSubCategorySubmit(event)">
+                <input type="hidden" id="subcategory-id" />
+                <input type="hidden" id="subcategory-category-id" />
+                
+                <div class="form-group">
+                    <label>Nom de la sous-catégorie</label>
+                    <input type="text" id="subcategory-name" placeholder="Ex: Adblocking" required />
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-subcategory')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal: Sous-sous-catégorie -->
+    <div class="modal" id="modal-subsubcategory">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-subsubcategory-title">Nouvelle Sous-sous-catégorie</h2>
+                <button class="modal-close" onclick="closeModal('modal-subsubcategory')">×</button>
+            </div>
+            
+            <form id="form-subsubcategory" onsubmit="handleSubSubCategorySubmit(event)">
+                <input type="hidden" id="subsubcategory-id" />
+                <input type="hidden" id="subsubcategory-category-id" />
+                <input type="hidden" id="subsubcategory-subcategory-id" />
+                
+                <div class="form-group">
+                    <label>Nom de la sous-sous-catégorie</label>
+                    <input type="text" id="subsubcategory-name" placeholder="Ex: Filtres & Extensions" required />
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-subsubcategory')">Annuler</button>
                     <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
                 </div>
             </form>
