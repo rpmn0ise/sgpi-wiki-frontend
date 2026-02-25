@@ -101,13 +101,30 @@
                 const loading = document.getElementById('categories-loading');
                 
                 if (data.categories && data.categories.length > 0) {
-                    grid.innerHTML = data.categories.map(cat => `
-                        <a href="category.html?slug=${cat.slug}" class="category-card">
-                            <div class="icon">${cat.emoji}</div>
-                            <h3>${cat.name}</h3>
-                            <p class="count">${cat.sectionsCount || 0} sections • ${cat.linksCount || 0} liens</p>
-                        </a>
-                    `).join('');
+                    grid.innerHTML = data.categories.map(cat => {
+                        // Support structure 3 niveaux
+                        const subCatsCount = cat.subCategoriesCount || cat.sectionsCount || 0;
+                        const subSubCatsCount = cat.subSubCategoriesCount || 0;
+                        const linksCount = cat.linksCount || 0;
+                        
+                        // Construire le texte du compteur
+                        let countText = '';
+                        if (subSubCatsCount > 0) {
+                            countText = `${subCatsCount} sous-cat • ${subSubCatsCount} sous-sous-cat • ${linksCount} liens`;
+                        } else if (subCatsCount > 0) {
+                            countText = `${subCatsCount} sections • ${linksCount} liens`;
+                        } else {
+                            countText = `${linksCount} liens`;
+                        }
+                        
+                        return `
+                            <a href="category.html?slug=${cat.slug}" class="category-card">
+                                <div class="icon">${cat.emoji}</div>
+                                <h3>${cat.name}</h3>
+                                <p class="count">${countText}</p>
+                            </a>
+                        `;
+                    }).join('');
                     
                     grid.style.display = 'grid';
                     loading.style.display = 'none';
