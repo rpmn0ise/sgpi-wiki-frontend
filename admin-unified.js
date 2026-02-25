@@ -162,9 +162,9 @@ async function loadDashboard() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         
-        // Stats
+        // Stats avec sous-catégories et sous-sous-catégories
         updateStat('stat-categories', data.stats?.categories || 0);
-        updateStat('stat-sections', data.stats?.sections || 0);
+        updateStat('stat-sections', `${data.stats?.subCategories || 0} sous-cat, ${data.stats?.subSubCategories || 0} sous-sous-cat`);
         updateStat('stat-links', data.stats?.links || 0);
         updateStat('stat-users', data.stats?.users || 0);
         
@@ -235,7 +235,7 @@ function displayTopCategories(categories) {
             <div style="font-size: 2rem;">${cat.emoji}</div>
             <div class="list-item-content">
                 <div class="list-item-title">${cat.name}</div>
-                <div class="list-item-meta">${cat.linksCount} liens • ${cat.sectionsCount} sections</div>
+                <div class="list-item-meta">${cat.linksCount} liens • ${cat.subCategoriesCount || 0} sous-cat • ${cat.subSubCategoriesCount || 0} sous-sous-cat</div>
             </div>
         </div>
     `).join('');
