@@ -953,6 +953,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h2 class="card-title">🔗 Gestion des Liens</h2>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">
+                                Ajoutez des liens dans une sous-catégorie (général) ou sous-sous-catégorie (spécifique)
+                            </p>
                         </div>
                         <div class="form-group">
                             <label>Catégorie</label>
@@ -967,9 +970,9 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Sous-sous-catégorie</label>
-                            <select id="link-subsubcategory-select" onchange="loadLinksForSubSubCategory()" disabled>
-                                <option value="">-- Choisir une sous-sous-catégorie --</option>
+                            <label>Sous-sous-catégorie <span style="color: var(--text-secondary); font-size: 0.85rem;">(optionnel)</span></label>
+                            <select id="link-subsubcategory-select" onchange="loadLinksForLevel()" disabled>
+                                <option value="">-- Optionnel : liens généraux si vide --</option>
                             </select>
                         </div>
                         <button class="btn btn-primary" onclick="openLinkModal()" id="add-link-btn" disabled>➕ Nouveau Lien</button>
