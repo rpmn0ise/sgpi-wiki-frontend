@@ -2184,6 +2184,318 @@ console.log('✅ Gestion structure 3 niveaux chargée');
 
 
 
+// =====================================================
+// CODE À AJOUTER/REMPLACER dans admin-unified.js
+// Toutes les fonctions manquantes pour Structure 3 niveaux
+// =====================================================
+
+// ===================================
+// GESTION LIENS - 3 NIVEAUX (CORRIGÉ)
+// ===================================
+
+// Fonction corrigée : loadSubCategoriesForLinks
+function loadSubCategoriesForLinks() {
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const subCategorySelect = document.getElementById('link-subcategory-select');
+    const subSubCategorySelect = document.getElementById('link-subsubcategory-select');
+    const addBtn = document.getElementById('add-link-btn');
+    
+    if (!subCategorySelect) return;
+    
+    // Reset
+    subCategorySelect.disabled = true;
+    subCategorySelect.innerHTML = '<option value="">-- Choisir une sous-catégorie --</option>';
+    subSubCategorySelect.disabled = true;
+    subSubCategorySelect.innerHTML = '<option value="">-- Optionnel : liens généraux si vide --</option>';
+    addBtn.disabled = true;
+    
+    const linksContainer = document.getElementById('links-list');
+    if (linksContainer) {
+        linksContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Sélectionnez une sous-catégorie</p></div>';
+    }
+    
+    if (!categoryId) return;
+    
+    const category = currentCategories.find(c => c._id === categoryId);
+    if (!category) return;
+    
+    const subCategories = category.subCategories || category.sections || [];
+    
+    if (subCategories.length === 0) {
+        subCategorySelect.innerHTML = '<option value="">Aucune sous-catégorie</option>';
+        return;
+    }
+    
+    subCategorySelect.disabled = false;
+    subCategorySelect.innerHTML = '<option value="">-- Choisir une sous-catégorie --</option>' +
+        subCategories.map(sub => `<option value="${sub.id}">${sub.name}</option>`).join('');
+}
+
+// Fonction corrigée : loadSubSubCategoriesForLinks
+function loadSubSubCategoriesForLinks() {
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const subCategoryId = document.getElementById('link-subcategory-select')?.value;
+    const subSubCategorySelect = document.getElementById('link-subsubcategory-select');
+    const addBtn = document.getElementById('add-link-btn');
+    
+    if (!subSubCategorySelect) return;
+    
+    // Reset
+    subSubCategorySelect.disabled = true;
+    subSubCategorySelect.innerHTML = '<option value="">-- Optionnel : liens généraux si vide --</option>';
+    addBtn.disabled = true;
+    
+    const linksContainer = document.getElementById('links-list');
+    
+    if (!categoryId || !subCategoryId) {
+        if (linksContainer) {
+            linksContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔗</div><p>Sélectionnez une sous-catégorie</p></div>';
+        }
+        return;
+    }
+    
+    // Activer le bouton car on peut ajouter des liens dans la sous-catégorie
+    addBtn.disabled = false;
+    
+    const category = currentCategories.find(c => c._id === categoryId);
+    if (!category) return;
+    
+    const subCategories = category.subCategories || category.sections || [];
+    const subCategory = subCategories.find(s => s.id === subCategoryId);
+    if (!subCategory) return;
+    
+    const subSubCategories = subCategory.subSubCategories || [];
+    
+    if (subSubCategories.length === 0) {
+        subSubCategorySelect.innerHTML = '<option value="">Pas de sous-sous-catégories (liens généraux)</option>';
+        // Charger les liens de la sous-catégorie
+        loadLinksForLevel();
+        return;
+    }
+    
+    subSubCategorySelect.disabled = false;
+    subSubCategorySelect.innerHTML = '<option value="">-- Optionnel : liens généraux si vide --</option>' +
+        subSubCategories.map(subsub => `<option value="${subsub.id}">${subsub.name}</option>`).join('');
+    
+    // Charger les liens de la sous-catégorie (généraux)
+    loadLinksForLevel();
+}
+
+// Fonction NOUVELLE : loadLinksForLevel (manquante !)
+async function loadLinksForLevel() {
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const subCategoryId = document.getElementById('link-subcategory-select')?.value;
+    const subSubCategoryId = document.getElementById('link-subsubcategory-select')?.value;
+    const container = document.getElementById('links-list');
+    
+    if (!container || !categoryId || !subCategoryId) return;
+    
+    try {
+        // Construire la query selon le niveau
+        let query = `categoryId=${categoryId}&subCategoryId=${subCategoryId}`;
+        
+        if (subSubCategoryId) {
+            query += `&subSubCategoryId=${subSubCategoryId}`;
+        }
+        
+        const res = await fetch(`${API_URL}/api/admin/links?${query}`, {
+            headers: { 'x-admin-key': 'adminsgpi' }
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        currentLinks = data.links || [];
+        renderLinks();
+        
+    } catch (err) {
+        console.error('Erreur chargement liens:', err);
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+// Fonction corrigée : openLinkModal
+function openLinkModal() {
+    const categoryId = document.getElementById('link-category-select')?.value;
+    const subCategoryId = document.getElementById('link-subcategory-select')?.value;
+    const subSubCategoryId = document.getElementById('link-subsubcategory-select')?.value;
+    
+    if (!categoryId || !subCategoryId) {
+        showToast('Sélectionnez au moins une catégorie et une sous-catégorie', 'warning');
+        return;
+    }
+    
+    document.getElementById('modal-link-title').textContent = 'Nouveau Lien';
+    document.getElementById('form-link').reset();
+    document.getElementById('link-id').value = '';
+    document.getElementById('link-category-id').value = categoryId;
+    document.getElementById('link-section-id').value = subCategoryId;
+    
+    // Stocker subSubCategoryId (peut être vide)
+    let subSubInput = document.getElementById('link-subsubcategory-id');
+    if (!subSubInput) {
+        subSubInput = document.createElement('input');
+        subSubInput.type = 'hidden';
+        subSubInput.id = 'link-subsubcategory-id';
+        document.getElementById('form-link').appendChild(subSubInput);
+    }
+    subSubInput.value = subSubCategoryId || '';
+    
+    // Reset badge
+    document.querySelectorAll('.badge-option').forEach(opt => opt.classList.remove('selected'));
+    document.querySelector('[data-badge=""]')?.classList.add('selected');
+    
+    openModal('modal-link');
+}
+
+// ===================================
+// AJOUT RAPIDE - 3 NIVEAUX OPTIONNEL
+// ===================================
+
+function loadQASubCategories() {
+    const categoryId = document.getElementById('qa-category-select')?.value;
+    const subCategorySelect = document.getElementById('qa-subcategory-select');
+    const subSubCategorySelect = document.getElementById('qa-subsubcategory-select');
+    
+    if (!subCategorySelect) return;
+    
+    // Reset
+    subCategorySelect.disabled = true;
+    subCategorySelect.innerHTML = '<option value="">Sélectionnez d\'abord une catégorie</option>';
+    subSubCategorySelect.disabled = true;
+    subSubCategorySelect.innerHTML = '<option value="">-- Optionnel : laissez vide pour liens généraux --</option>';
+    
+    if (!categoryId) return;
+    
+    const category = currentCategories.find(c => c._id === categoryId);
+    if (!category) return;
+    
+    const subCategories = category.subCategories || category.sections || [];
+    
+    if (subCategories.length === 0) {
+        showToast('Cette catégorie n\'a pas de sous-catégories', 'warning');
+        return;
+    }
+    
+    subCategorySelect.disabled = false;
+    subCategorySelect.innerHTML = '<option value="">-- Sélectionner --</option>' +
+        subCategories.map(sub => `<option value="${sub.id}">${sub.name}</option>`).join('');
+}
+
+function loadQASubSubCategories() {
+    const categoryId = document.getElementById('qa-category-select')?.value;
+    const subCategoryId = document.getElementById('qa-subcategory-select')?.value;
+    const subSubCategorySelect = document.getElementById('qa-subsubcategory-select');
+    
+    if (!subSubCategorySelect) return;
+    
+    // Reset
+    subSubCategorySelect.disabled = true;
+    subSubCategorySelect.innerHTML = '<option value="">-- Optionnel : laissez vide pour liens généraux --</option>';
+    
+    if (!categoryId || !subCategoryId) return;
+    
+    const category = currentCategories.find(c => c._id === categoryId);
+    if (!category) return;
+    
+    const subCategories = category.subCategories || category.sections || [];
+    const subCategory = subCategories.find(s => s.id === subCategoryId);
+    if (!subCategory) return;
+    
+    const subSubCategories = subCategory.subSubCategories || [];
+    
+    if (subSubCategories.length === 0) {
+        subSubCategorySelect.innerHTML = '<option value="">Pas de sous-sous-catégories (liens généraux OK)</option>';
+        return;
+    }
+    
+    subSubCategorySelect.disabled = false;
+    subSubCategorySelect.innerHTML = '<option value="">-- Optionnel : laissez vide pour liens généraux --</option>' +
+        subSubCategories.map(subsub => `<option value="${subsub.id}">${subsub.name}</option>`).join('');
+}
+
+// Fonction corrigée : handleQASubmit
+async function handleQASubmit(e) {
+    e.preventDefault();
+    
+    const categoryId = document.getElementById('qa-category-select').value;
+    const subCategoryId = document.getElementById('qa-subcategory-select').value;
+    const subSubCategoryId = document.getElementById('qa-subsubcategory-select').value || '';
+    const linksText = document.getElementById('qa-links-input').value;
+    
+    if (!categoryId || !subCategoryId) {
+        showToast('Sélectionnez au moins une catégorie et une sous-catégorie', 'warning');
+        return;
+    }
+    
+    const links = parseLinks(linksText);
+    
+    if (links.length === 0) {
+        showToast('Aucun lien valide détecté', 'error');
+        return;
+    }
+    
+    const submitBtn = document.getElementById('qa-submit-btn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Ajout en cours...';
+    }
+    
+    try {
+        // Si pas de sous-sous-catégorie, ajouter dans la sous-catégorie
+        const payload = {
+            categoryId,
+            subCategoryId,
+            links
+        };
+        
+        // Ajouter subSubCategoryId seulement s'il existe
+        if (subSubCategoryId) {
+            payload.subSubCategoryId = subSubCategoryId;
+        }
+        
+        const res = await fetch(`${API_URL}/api/admin/quick-add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast(`✅ ${data.message}`, 'success');
+        
+        // Reset
+        document.getElementById('qa-links-input').value = '';
+        document.getElementById('qa-link-counter').textContent = '0 liens détectés';
+        document.getElementById('qa-link-counter').classList.remove('active');
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '✅ Ajouter tous les liens';
+        }
+    }
+}
+
+// ===================================
+// EXPOSER GLOBALEMENT (IMPORTANT!)
+// ===================================
+
+window.loadSubCategoriesForLinks = loadSubCategoriesForLinks;
+window.loadSubSubCategoriesForLinks = loadSubSubCategoriesForLinks;
+window.loadLinksForLevel = loadLinksForLevel;
+window.openLinkModal = openLinkModal;
+window.loadQASubCategories = loadQASubCategories;
+window.loadQASubSubCategories = loadQASubSubCategories;
+window.handleQASubmit = handleQASubmit;
+
+console.log('✅ Fonctions liens 3 niveaux chargées');
 
 
 
