@@ -2503,3 +2503,458 @@ console.log('✅ Fonctions liens 3 niveaux chargées');
 
 
 console.log('✅ Panel Admin Unifié chargé');
+// =====================================================
+// CODE COMPLET - Gestion Structure 3 niveaux
+// À REMPLACER dans admin-unified.js
+// Copie TOUT ce fichier à la fin de admin-unified.js
+// =====================================================
+
+// Variables globales
+let currentStructureCategory = null;
+
+// ===================================
+// CHARGEMENT DE LA STRUCTURE
+// ===================================
+
+async function loadStructure() {
+    const categoryId = document.getElementById('structure-category-select')?.value;
+    const container = document.getElementById('structure-container');
+    
+    if (!container) return;
+    
+    if (!categoryId) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏗️</div><p>Sélectionnez une catégorie</p></div>';
+        return;
+    }
+    
+    currentStructureCategory = currentCategories.find(c => c._id === categoryId);
+    if (!currentStructureCategory) return;
+    
+    renderStructureTree();
+}
+
+function renderStructureTree() {
+    const container = document.getElementById('structure-container');
+    if (!container || !currentStructureCategory) return;
+    
+    const subCategories = currentStructureCategory.subCategories || [];
+    
+    let html = '<div class="structure-tree">';
+    
+    if (subCategories.length === 0) {
+        html += `
+            <div class="empty-state">
+                <div class="empty-state-icon">📂</div>
+                <p>Aucune sous-catégorie</p>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Commencez par créer une sous-catégorie</p>
+            </div>
+        `;
+    } else {
+        subCategories.forEach((subCat) => {
+            const subSubCats = subCat.subSubCategories || [];
+            
+            html += `
+                <div class="tree-node level-1" data-subcat-id="${subCat.id}">
+                    <div class="tree-header">
+                        <span class="tree-icon">📂</span>
+                        <span class="tree-name">${subCat.name}</span>
+                        <div class="tree-actions">
+                            <button class="btn btn-sm btn-success" onclick="openAddSubSubCategoryModal('${subCat.id}')" title="Ajouter sous-sous-catégorie">
+                                ➕ Sous-sous-cat
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="openEditSubCategoryModal('${subCat.id}')" title="Modifier">
+                                ✏️
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteSubCategory('${subCat.id}', '${escapeHtml(subCat.name)}')" title="Supprimer">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+            `;
+            
+            if (subSubCats.length > 0) {
+                html += '<div class="tree-children">';
+                
+                subSubCats.forEach(subSubCat => {
+                    html += `
+                        <div class="tree-node level-2" data-subsubcat-id="${subSubCat.id}">
+                            <div class="tree-header">
+                                <span class="tree-icon">📄</span>
+                                <span class="tree-name">${subSubCat.name}</span>
+                                <div class="tree-actions">
+                                    <button class="btn btn-sm btn-secondary" onclick="openEditSubSubCategoryModal('${subCat.id}', '${subSubCat.id}')" title="Modifier">
+                                        ✏️
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteSubSubCategory('${subCat.id}', '${subSubCat.id}', '${escapeHtml(subSubCat.name)}')" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+        });
+    }
+    
+    html += '</div>';
+    
+    html += `
+        <div style="margin-top: 20px;">
+            <button class="btn btn-primary" onclick="openAddSubCategoryModal()">
+                ➕ Ajouter une sous-catégorie
+            </button>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// ===================================
+// MODALS - SOUS-CATÉGORIES
+// ===================================
+
+function openAddSubCategoryModal() {
+    document.getElementById('modal-subcategory-title').textContent = 'Nouvelle Sous-catégorie';
+    document.getElementById('form-subcategory').reset();
+    document.getElementById('subcategory-id').value = '';
+    document.getElementById('subcategory-category-id').value = currentStructureCategory._id;
+    
+    openModal('modal-subcategory');
+}
+
+function openEditSubCategoryModal(subCatId) {
+    const subCat = currentStructureCategory.subCategories?.find(s => s.id === subCatId);
+    if (!subCat) return;
+    
+    document.getElementById('modal-subcategory-title').textContent = 'Modifier la sous-catégorie';
+    document.getElementById('subcategory-id').value = subCat.id;
+    document.getElementById('subcategory-category-id').value = currentStructureCategory._id;
+    document.getElementById('subcategory-name').value = subCat.name;
+    
+    openModal('modal-subcategory');
+}
+
+async function handleSubCategorySubmit(event) {
+    event.preventDefault();
+    
+    const categoryId = document.getElementById('subcategory-category-id').value;
+    const subCatId = document.getElementById('subcategory-id').value;
+    const name = document.getElementById('subcategory-name').value;
+    
+    try {
+        const category = currentCategories.find(c => c._id === categoryId);
+        if (!category) throw new Error('Catégorie introuvable');
+        
+        let subCategories = category.subCategories || [];
+        
+        if (subCatId) {
+            // Modification
+            const index = subCategories.findIndex(s => s.id === subCatId);
+            if (index !== -1) {
+                subCategories[index].name = name;
+            }
+        } else {
+            // Création
+            subCategories.push({
+                id: 'subcat_' + Date.now(),
+                name: name,
+                order: subCategories.length,
+                subSubCategories: []
+            });
+        }
+        
+        // Mettre à jour la catégorie
+        const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({
+                name: category.name,
+                emoji: category.emoji,
+                slug: category.slug,
+                subCategories: subCategories
+            })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast(subCatId ? 'Sous-catégorie modifiée !' : 'Sous-catégorie créée !', 'success');
+        closeModal('modal-subcategory');
+        
+        await loadCategories();
+        await loadStructure();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+async function deleteSubCategory(subCatId, name) {
+    if (!confirm(`Supprimer la sous-catégorie "${name}" ?\n\n⚠️ ATTENTION : Toutes les sous-sous-catégories et leurs liens seront supprimés !`)) return;
+    
+    try {
+        const categoryId = currentStructureCategory._id;
+        const category = currentCategories.find(c => c._id === categoryId);
+        if (!category) throw new Error('Catégorie introuvable');
+        
+        let subCategories = category.subCategories || [];
+        subCategories = subCategories.filter(s => s.id !== subCatId);
+        
+        // Supprimer les liens associés
+        await fetch(`${API_URL}/api/admin/links/batch-delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({
+                categoryId: categoryId,
+                subCategoryId: subCatId
+            })
+        });
+        
+        // Mettre à jour la catégorie
+        const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({
+                name: category.name,
+                emoji: category.emoji,
+                slug: category.slug,
+                subCategories: subCategories
+            })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast('Sous-catégorie supprimée', 'success');
+        
+        await loadCategories();
+        await loadStructure();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+// ===================================
+// MODALS - SOUS-SOUS-CATÉGORIES
+// ===================================
+
+function openAddSubSubCategoryModal(subCatId) {
+    document.getElementById('modal-subsubcategory-title').textContent = 'Nouvelle Sous-sous-catégorie';
+    document.getElementById('form-subsubcategory').reset();
+    document.getElementById('subsubcategory-id').value = '';
+    document.getElementById('subsubcategory-category-id').value = currentStructureCategory._id;
+    document.getElementById('subsubcategory-subcategory-id').value = subCatId;
+    
+    openModal('modal-subsubcategory');
+}
+
+function openEditSubSubCategoryModal(subCatId, subSubCatId) {
+    const subCat = currentStructureCategory.subCategories?.find(s => s.id === subCatId);
+    if (!subCat) return;
+    
+    const subSubCat = subCat.subSubCategories?.find(ss => ss.id === subSubCatId);
+    if (!subSubCat) return;
+    
+    document.getElementById('modal-subsubcategory-title').textContent = 'Modifier la sous-sous-catégorie';
+    document.getElementById('subsubcategory-id').value = subSubCat.id;
+    document.getElementById('subsubcategory-category-id').value = currentStructureCategory._id;
+    document.getElementById('subsubcategory-subcategory-id').value = subCatId;
+    document.getElementById('subsubcategory-name').value = subSubCat.name;
+    
+    openModal('modal-subsubcategory');
+}
+
+async function handleSubSubCategorySubmit(event) {
+    event.preventDefault();
+    
+    const categoryId = document.getElementById('subsubcategory-category-id').value;
+    const subCatId = document.getElementById('subsubcategory-subcategory-id').value;
+    const subSubCatId = document.getElementById('subsubcategory-id').value;
+    const name = document.getElementById('subsubcategory-name').value;
+    
+    try {
+        const category = currentCategories.find(c => c._id === categoryId);
+        if (!category) throw new Error('Catégorie introuvable');
+        
+        let subCategories = category.subCategories || [];
+        const subCatIndex = subCategories.findIndex(s => s.id === subCatId);
+        
+        if (subCatIndex === -1) throw new Error('Sous-catégorie introuvable');
+        
+        let subSubCategories = subCategories[subCatIndex].subSubCategories || [];
+        
+        if (subSubCatId) {
+            // Modification
+            const index = subSubCategories.findIndex(ss => ss.id === subSubCatId);
+            if (index !== -1) {
+                subSubCategories[index].name = name;
+            }
+        } else {
+            // Création
+            subSubCategories.push({
+                id: 'subsubcat_' + Date.now(),
+                name: name,
+                order: subSubCategories.length
+            });
+        }
+        
+        subCategories[subCatIndex].subSubCategories = subSubCategories;
+        
+        // Mettre à jour la catégorie
+        const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({
+                name: category.name,
+                emoji: category.emoji,
+                slug: category.slug,
+                subCategories: subCategories
+            })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast(subSubCatId ? 'Sous-sous-catégorie modifiée !' : 'Sous-sous-catégorie créée !', 'success');
+        closeModal('modal-subsubcategory');
+        
+        await loadCategories();
+        await loadStructure();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+async function deleteSubSubCategory(subCatId, subSubCatId, name) {
+    if (!confirm(`Supprimer la sous-sous-catégorie "${name}" ?\n\n⚠️ ATTENTION : Tous les liens seront supprimés !`)) return;
+    
+    try {
+        const categoryId = currentStructureCategory._id;
+        const category = currentCategories.find(c => c._id === categoryId);
+        if (!category) throw new Error('Catégorie introuvable');
+        
+        let subCategories = category.subCategories || [];
+        const subCatIndex = subCategories.findIndex(s => s.id === subCatId);
+        
+        if (subCatIndex === -1) throw new Error('Sous-catégorie introuvable');
+        
+        let subSubCategories = subCategories[subCatIndex].subSubCategories || [];
+        subSubCategories = subSubCategories.filter(ss => ss.id !== subSubCatId);
+        subCategories[subCatIndex].subSubCategories = subSubCategories;
+        
+        // Supprimer les liens
+        await fetch(`${API_URL}/api/admin/links/batch-delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({
+                categoryId: categoryId,
+                subCategoryId: subCatId,
+                subSubCategoryId: subSubCatId
+            })
+        });
+        
+        // Mettre à jour la catégorie
+        const res = await fetch(`${API_URL}/api/admin/categories/${categoryId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': 'adminsgpi'
+            },
+            body: JSON.stringify({
+                name: category.name,
+                emoji: category.emoji,
+                slug: category.slug,
+                subCategories: subCategories
+            })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        
+        showToast('Sous-sous-catégorie supprimée', 'success');
+        
+        await loadCategories();
+        await loadStructure();
+        
+    } catch (err) {
+        showToast('Erreur: ' + err.message, 'error');
+    }
+}
+
+// ===================================
+// UTILITAIRES
+// ===================================
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// ===================================
+// INIT
+// ===================================
+
+function initStructureTab() {
+    const select = document.getElementById('structure-category-select');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">-- Choisir une catégorie --</option>' +
+        currentCategories.map(cat => 
+            `<option value="${cat._id}">${cat.emoji} ${cat.name}</option>`
+        ).join('');
+}
+
+// Hook dans loadCategories
+document.addEventListener('DOMContentLoaded', function() {
+    const originalLoadCat = window.loadCategories;
+    if (originalLoadCat) {
+        window.loadCategories = async function() {
+            await originalLoadCat();
+            initStructureTab();
+        };
+    }
+});
+
+// ===================================
+// EXPOSER GLOBALEMENT (CRITIQUE!)
+// ===================================
+
+window.loadStructure = loadStructure;
+window.openAddSubCategoryModal = openAddSubCategoryModal;
+window.openEditSubCategoryModal = openEditSubCategoryModal;
+window.handleSubCategorySubmit = handleSubCategorySubmit;
+window.deleteSubCategory = deleteSubCategory;
+window.openAddSubSubCategoryModal = openAddSubSubCategoryModal;
+window.openEditSubSubCategoryModal = openEditSubSubCategoryModal;
+window.handleSubSubCategorySubmit = handleSubSubCategorySubmit;
+window.deleteSubSubCategory = deleteSubSubCategory;
+
+console.log('✅ Gestion structure 3 niveaux chargée - COMPLET');
